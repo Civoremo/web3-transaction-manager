@@ -1,5 +1,6 @@
-import { describe, it, expect, vi } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/svelte';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { render, screen, fireEvent, cleanup } from '@testing-library/svelte';
+import '@testing-library/jest-dom';
 import TransactionCard from './TransactionCard.svelte';
 import type { Transaction, TransactionState } from '../types';
 
@@ -17,6 +18,15 @@ describe('TransactionCard', () => {
             description: 'Send 1 ETH'
         }
     };
+
+    beforeEach(() => {
+        vi.useFakeTimers();
+    });
+
+    afterEach(() => {
+        vi.restoreAllMocks();
+        cleanup();
+    });
 
     it('should render transaction details', () => {
         const state: TransactionState = { status: 'pending' };
@@ -50,14 +60,7 @@ describe('TransactionCard', () => {
             });
 
             expect(screen.getByText(expectedTexts[index])).toBeInTheDocument();
-            rerender({
-                props: {
-                    transaction: mockTransaction,
-                    state: { status },
-                    onExecute: vi.fn(),
-                    onRetry: vi.fn()
-                }
-            });
+            cleanup();
         });
     });
 
@@ -153,5 +156,26 @@ describe('TransactionCard', () => {
 
         expect(screen.getByText('Transaction')).toBeInTheDocument();
         expect(screen.getByText('No description provided')).toBeInTheDocument();
+    });
+
+    it('should timeout processing after 3 seconds', async () => {
+        const handleTimeout = vi.fn();
+        render(TransactionCard, {
+            props: {
+                transaction: mockTransaction,
+                state: { status: 'processing' },
+                onExecute: vi.fn(),
+                onRetry: vi.fn(),
+                onProcessingTimeout: handleTimeout,
+                processingTimeout: 3000 // 3 seconds in milliseconds
+            }
+        });
+
+        expect(screen.getByText('Processing...')).toBeInTheDocument();
+        
+        // Fast forward time by 3 seconds
+        vi.advanceTimersByTime(3000);
+        
+        expect(handleTimeout).toHaveBeenCalledTimes(1);
     });
 }); 

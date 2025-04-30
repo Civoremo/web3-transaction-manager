@@ -2,7 +2,7 @@
 	"name": "web3-transaction-manager",
 	"version": "0.0.1",
 	"description": "A Svelte package for managing sequential Web3 transactions with a user-friendly interface",
-	"author": "Your Name",
+	"author": "Civoremon",
 	"license": "MIT",
 	"type": "module",
 	"keywords": [
@@ -14,7 +14,7 @@
 	],
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/yourusername/web3-transaction-manager"
+		"url": "https://github.com/Civoremon/web3-transaction-manager"
 	},
 	"svelte": "./dist/index.js",
 	"types": "./dist/index.d.ts",
@@ -40,6 +40,7 @@
 		"test": "vitest run",
 		"test:watch": "vitest",
 		"test:coverage": "vitest run --coverage",
+		"test:page": "vite dev --open /test",
 		"lint": "eslint .",
 		"format": "prettier --write .",
 		"package": "svelte-package",
