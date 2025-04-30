@@ -1,0 +1,157 @@
+import { describe, it, expect, vi } from 'vitest';
+import { render, screen, fireEvent } from '@testing-library/svelte';
+import TransactionCard from './TransactionCard.svelte';
+import type { Transaction, TransactionState } from '../types';
+
+describe('TransactionCard', () => {
+    const mockTransaction: Transaction = {
+        id: '1',
+        type: 'standard',
+        params: {
+            to: '0x123',
+            value: '1000000000000000000',
+            data: '0x'
+        },
+        metadata: {
+            title: 'Send ETH',
+            description: 'Send 1 ETH'
+        }
+    };
+
+    it('should render transaction details', () => {
+        const state: TransactionState = { status: 'pending' };
+        render(TransactionCard, {
+            props: {
+                transaction: mockTransaction,
+                state,
+                onExecute: vi.fn(),
+                onRetry: vi.fn()
+            }
+        });
+
+        expect(screen.getByText('Send ETH')).toBeInTheDocument();
+        expect(screen.getByText('Send 1 ETH')).toBeInTheDocument();
+        expect(screen.getByText('0x123')).toBeInTheDocument();
+        expect(screen.getByText('1000000000000000000 ETH')).toBeInTheDocument();
+    });
+
+    it('should show correct status text for different states', () => {
+        const states: TransactionState['status'][] = ['pending', 'processing', 'success', 'failed', 'cancelled'];
+        const expectedTexts = ['Waiting to start', 'Processing...', 'Completed', 'Failed', 'Cancelled'];
+
+        states.forEach((status, index) => {
+            const { rerender } = render(TransactionCard, {
+                props: {
+                    transaction: mockTransaction,
+                    state: { status },
+                    onExecute: vi.fn(),
+                    onRetry: vi.fn()
+                }
+            });
+
+            expect(screen.getByText(expectedTexts[index])).toBeInTheDocument();
+            rerender({
+                props: {
+                    transaction: mockTransaction,
+                    state: { status },
+                    onExecute: vi.fn(),
+                    onRetry: vi.fn()
+                }
+            });
+        });
+    });
+
+    it('should show execute button for pending transactions', () => {
+        const handleExecute = vi.fn();
+        render(TransactionCard, {
+            props: {
+                transaction: mockTransaction,
+                state: { status: 'pending' },
+                onExecute: handleExecute,
+                onRetry: vi.fn()
+            }
+        });
+
+        const button = screen.getByText('Execute');
+        expect(button).toBeInTheDocument();
+        fireEvent.click(button);
+        expect(handleExecute).toHaveBeenCalled();
+    });
+
+    it('should show retry button for failed transactions', () => {
+        const handleRetry = vi.fn();
+        render(TransactionCard, {
+            props: {
+                transaction: mockTransaction,
+                state: { status: 'failed', error: 'Transaction failed' },
+                onExecute: vi.fn(),
+                onRetry: handleRetry
+            }
+        });
+
+        const button = screen.getByText('Retry');
+        expect(button).toBeInTheDocument();
+        fireEvent.click(button);
+        expect(handleRetry).toHaveBeenCalled();
+    });
+
+    it('should disable button during processing', () => {
+        render(TransactionCard, {
+            props: {
+                transaction: mockTransaction,
+                state: { status: 'processing' },
+                onExecute: vi.fn(),
+                onRetry: vi.fn()
+            }
+        });
+
+        const button = screen.getByText('Processing...');
+        expect(button).toBeDisabled();
+    });
+
+    it('should show error message when transaction fails', () => {
+        const errorMessage = 'Transaction failed: insufficient funds';
+        render(TransactionCard, {
+            props: {
+                transaction: mockTransaction,
+                state: { status: 'failed', error: errorMessage },
+                onExecute: vi.fn(),
+                onRetry: vi.fn()
+            }
+        });
+
+        expect(screen.getByText(errorMessage)).toBeInTheDocument();
+    });
+
+    it('should show gas used when available', () => {
+        render(TransactionCard, {
+            props: {
+                transaction: mockTransaction,
+                state: { status: 'success', gasUsed: BigInt(21000) },
+                onExecute: vi.fn(),
+                onRetry: vi.fn()
+            }
+        });
+
+        expect(screen.getByText('21000')).toBeInTheDocument();
+    });
+
+    it('should handle missing metadata gracefully', () => {
+        const txWithoutMetadata: Transaction = {
+            ...mockTransaction,
+            metadata: undefined
+        };
+
+        render(TransactionCard, {
+            props: {
+                transaction: txWithoutMetadata,
+                state: { status: 'pending' },
+                onExecute: vi.fn(),
+                onRetry: vi.fn()
+            }
+        });
+
+        expect(screen.getByText('Transaction')).toBeInTheDocument();
+        expect(screen.getByText('No description provided')).toBeInTheDocument();
+    });
+}); 
