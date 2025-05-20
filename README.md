@@ -12,6 +12,9 @@ A Svelte component library for managing multi-step blockchain transactions with 
 - 📱 Responsive design
 - 🎭 Customizable themes and styling
 
+## Preview Page
+[Preview](https://web3-transaction-manager.netlify.app/)
+
 ## Installation
 
 ```bash
@@ -61,24 +64,39 @@ npm install web3-transaction-manager
 />
 ```
 
-## Props
+## TransactionModal Props
 
 ### Required Props
 
-- `transactions`: Array of `Transaction` objects to be executed
-- `signer`: ethers.Signer instance for transaction signing
-- `blockExplorerUrl`: Base URL for the block explorer (e.g., 'https://etherscan.io/tx/' for Ethereum)
+| Prop               | Type                       | Description                                                      |
+|--------------------|----------------------------|------------------------------------------------------------------|
+| `transactions`     | `Transaction[]`            | Array of transaction objects to be executed in sequence.         |
+| `signer`           | `ethers.Signer`            | Ethers.js signer instance for transaction signing.               |
+| `blockExplorerUrl` | `string`                   | Base URL for the block explorer (e.g., 'https://etherscan.io/tx/'). |
 
 ### Optional Props
 
-- `isOpen`: Boolean to control modal visibility (default: false)
-- `theme`: 'light' | 'dark' (default: 'light')
-- `showSummary`: Boolean to show transaction summary (default: false)
-- `title`: Modal title (default: 'Borrow 1000 USDC')
-- `subtitle`: Modal subtitle (default: 'Variable Rolling Rate')
-- `positionsUrl`: URL for the positions page (default: '#')
-- `socialLinks`: Object containing social media URLs
-- `supportChannelUrl`: URL for the support channel
+| Prop                | Type                          | Default         | Description                                                      |
+|---------------------|-------------------------------|-----------------|------------------------------------------------------------------|
+| `isOpen`            | `boolean`                     | `false`         | Controls modal visibility.                                       |
+| `theme`             | `'light' \| 'dark'`           | `'light'`       | Sets the modal theme.                                            |
+| `showSummary`       | `boolean`                     | `true`          | Show transaction summary after completion.                       |
+| `title`             | `string`                      | `'Borrow 1000 USDC'` | Modal title.                                                |
+| `subtitle`          | `string`                      | `'Variable Rolling Rate'` | Modal subtitle.                                         |
+| `positionsUrl`      | `string`                      | `'#'`           | URL for the positions page.                                      |
+| `socialLinks`       | `object`                      | See example      | Social media URLs (x, warpcast, telegram).                       |
+| `supportChannelUrl` | `string`                      | `'https://t.me/your-support'` | URL for support channel.                             |
+| `customTheme`       | `Partial<ThemeConfig>`        | `{}`            | Custom theme configuration object.                               |
+| `closeOnOverlayClick` | `boolean`                   | `false`         | Allow closing modal by clicking the overlay.                     |
+
+#### Example `socialLinks` object:
+```js
+{
+  x: 'https://x.com/your-handle',
+  warpcast: 'https://warpcast.com/your-handle',
+  telegram: 'https://t.me/your-channel'
+}
+```
 
 ## Events
 
@@ -123,8 +141,23 @@ The components use a clean, modern design with support for both light and dark t
 - Primary: #4F7FFF
 - Success: #10B981
 - Error: #DC2626
-- Text: #111827
+- Text: #111827 (light) / #FFFFFF (dark)
 - Background: #FFFFFF (light) / #1F2937 (dark)
+- Border: #E5E7EB (light) / #374151 (dark)
+- Disabled: #9CA3AF
+- Hover: #3B82F6
+- Card: #F7F7FA (light) / #374151 (dark)
+- Button Primary: #4F7FFF
+- Button Primary Text: #FFFFFF
+- Button Disabled: rgba(79,127,255,0.1)
+- Button Disabled Text: #4F7FFF
+- Button Error: #DC2626
+- Button Error Text: #FFFFFF
+- Button Success: #FFFFFF (light) / #1F2937 (dark)
+- Button Success Text: #64748B (light) / #9CA3AF (dark)
+- Button Processing: #4F7FFF
+- Button Processing Text: #FFFFFF
+- Button Hover: #3B66E5
 
 ### Typography
 
