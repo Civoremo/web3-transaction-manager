@@ -1,4 +1,4 @@
-# Test Page - Web3 Transaction Manager
+
 
 <script lang="ts">
     import { TransactionModal } from '$lib';

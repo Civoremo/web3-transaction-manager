@@ -260,6 +260,7 @@
                                     rel="noopener noreferrer"
                                     class="action-button processing"
                                 >
+                                    <span class="spinner"></span>
                                     Pending... ↗
                                 </a>
                             {:else if states.get(transaction.id)?.status === 'failed'}
@@ -452,7 +453,10 @@
         border: 2px solid #fff;
         border-top-color: transparent;
         border-radius: 50%;
+        margin-right: 8px;
         animation: spin 1s linear infinite;
+        display: inline-block;
+        vertical-align: middle;
     }
 
     .link-icon {
