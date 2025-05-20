@@ -1,186 +1,153 @@
 # Web3 Transaction Manager
 
-A modern, user-friendly transaction management system for Web3 applications, built with Svelte. This package provides a seamless interface for managing sequential Web3 transactions with a polished UI and robust state management.
+A Svelte component library for managing multi-step blockchain transactions with a beautiful, user-friendly interface.
 
 ## Features
 
-- 🔄 **Sequential Transaction Flow**
-  - Manage multiple transactions in sequence
-  - Auto-execute support after approvals
-  - Transaction status tracking with external links
-
-- 💅 **Polished UI Components**
-  - Modern, clean design
-  - Dynamic button states
-  - Success/Error handling
-  - Loading states and animations
-  - Dark theme support
-
-- 🛠 **Developer Experience**
-  - TypeScript support
-  - Simple integration
-  - Minimal boilerplate
-  - Comprehensive event system
+- 🎯 Multi-step transaction management
+- 🎨 Modern, clean UI with dark mode support
+- 🔄 Automatic transaction state tracking
+- 🔗 Block explorer integration
+- 🚀 Retry functionality for failed transactions
+- 📱 Responsive design
+- 🎭 Customizable themes and styling
 
 ## Installation
 
 ```bash
 npm install web3-transaction-manager
-# or
-yarn add web3-transaction-manager
-# or
-pnpm add web3-transaction-manager
 ```
 
-## Usage
+## Quick Start
 
-### 1. Encode your transactions
-```typescript
-const approveData = tokenContract.interface.encodeFunctionData('approve', [marketAddress, ethers.MaxUint256]);
-const setCreditMarketData = marketContract.interface.encodeFunctionData('setCreditMarket', [/* params */]);
-
-const transactions = [
-  {
-    id: 'tx1',
-    type: 'approval',
-    params: { 
-      to: tokenAddress, 
-      data: approveData, 
-      value: '0' 
-    },
-    metadata: { 
-      title: 'Approve USDC', 
-      buttonLabel: 'Approve', 
-      description: 'Approve USDC for protocol interaction' 
-    }
-  },
-  {
-    id: 'tx2',
-    type: 'contract',
-    params: { 
-      to: marketAddress, 
-      data: setCreditMarketData, 
-      value: '0' 
-    },
-    metadata: { 
-      title: 'Create Credit Position', 
-      buttonLabel: 'Create', 
-      description: 'Create your credit position' 
-    }
-  }
-];
-```
-
-### 2. Use the TransactionModal component
 ```svelte
 <script>
-  import { TransactionModal } from 'web3-transaction-manager';
-  import { ethers } from 'ethers';
+    import { TransactionModal } from 'web3-transaction-manager';
+    import { ethers } from 'ethers';
 
-  let isModalOpen = false;
-  let signer: ethers.Signer;
-  
-  function handleSuccess(event) {
-    console.log('Transaction success:', event.detail);
-  }
-  
-  function handleError(event) {
-    console.error('Transaction error:', event.detail);
-  }
+    let isOpen = false;
+    let signer = new ethers.Signer();
+    let transactions = [
+        {
+            id: 'approve',
+            type: 'approval',
+            params: {
+                to: '0x...',
+                data: '0x...'
+            },
+            metadata: {
+                title: 'Approve USDC',
+                buttonLabel: 'Approve'
+            }
+        }
+    ];
 </script>
 
 <TransactionModal
-  isOpen={isModalOpen}
-  transactions={transactions}
-  signer={signer}
-  theme="light"
-  positionsUrl="/positions"
-  etherscanBaseUrl="https://etherscan.io/tx/"
-  on:close={() => isModalOpen = false}
-  on:success={handleSuccess}
-  on:error={handleError}
+    {isOpen}
+    {transactions}
+    {signer}
+    blockExplorerUrl="https://etherscan.io/tx/"
+    title="Borrow 1000 USDC"
+    subtitle="Variable Rolling Rate"
+    positionsUrl="/positions"
+    socialLinks={{
+        x: 'https://x.com/your-handle',
+        warpcast: 'https://warpcast.com/your-handle',
+        telegram: 'https://t.me/your-channel'
+    }}
+    supportChannelUrl="https://t.me/your-support"
+    on:close={() => isOpen = false}
 />
 ```
 
-## Component Props
+## Props
 
-### TransactionModal
+### Required Props
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| isOpen | boolean | false | Controls modal visibility |
-| transactions | Transaction[] | [] | Array of transactions to process |
-| signer | ethers.Signer | - | Ethers.js signer instance |
-| theme | 'light' \| 'dark' | 'light' | UI theme |
-| positionsUrl | string | '#' | URL for positions page link |
-| etherscanBaseUrl | string | 'https://etherscan.io/tx/' | Base URL for transaction links |
-| title | string | - | Modal title |
-| subtitle | string | - | Modal subtitle |
+- `transactions`: Array of `Transaction` objects to be executed
+- `signer`: ethers.Signer instance for transaction signing
+- `blockExplorerUrl`: Base URL for the block explorer (e.g., 'https://etherscan.io/tx/' for Ethereum)
+
+### Optional Props
+
+- `isOpen`: Boolean to control modal visibility (default: false)
+- `theme`: 'light' | 'dark' (default: 'light')
+- `showSummary`: Boolean to show transaction summary (default: false)
+- `title`: Modal title (default: 'Borrow 1000 USDC')
+- `subtitle`: Modal subtitle (default: 'Variable Rolling Rate')
+- `positionsUrl`: URL for the positions page (default: '#')
+- `socialLinks`: Object containing social media URLs
+- `supportChannelUrl`: URL for the support channel
 
 ## Events
 
-| Event | Detail | Description |
-|-------|--------|-------------|
-| close | - | Modal closed |
-| success | { transactionId: string, hash: string } | Transaction succeeded |
-| error | { transactionId: string, error: string } | Transaction failed |
+- `close`: Dispatched when the modal is closed
+- `execute`: Dispatched when a transaction is executed
+- `skip`: Dispatched when a transaction is skipped
+- `cancel`: Dispatched when the transaction flow is cancelled
+
+## Types
+
+```typescript
+interface Transaction {
+    id: string;
+    type: TransactionType;
+    params: {
+        to: string;
+        data: string;
+        value?: string;
+    };
+    metadata: {
+        title: string;
+        buttonLabel: string;
+    };
+}
+
+/**
+ * Transaction types for different kinds of blockchain transactions
+ * - 'approval': Token approval transactions (e.g., approving USDC for a protocol)
+ * - 'contract': Smart contract interaction transactions (e.g., calling contract functions)
+ * - 'standard': Standard ETH transfers or simple transactions
+ */
+type TransactionType = 'approval' | 'contract' | 'standard';
+type TransactionStatus = 'pending' | 'processing' | 'success' | 'failed';
+```
 
 ## Styling
 
-The package includes a modern, polished design system with support for both light and dark themes:
+The components use a clean, modern design with support for both light and dark themes. The styling is scoped to each component and uses CSS custom properties for easy theming.
 
-### Button States
-```css
-/* Active button (blue) */
-background: #4F7FFF;
-color: white;
+### Colors
 
-/* Processing button (blue with arrow) */
-background: #4F7FFF;
-color: white;
+- Primary: #4F7FFF
+- Success: #10B981
+- Error: #DC2626
+- Text: #111827
+- Background: #FFFFFF (light) / #1F2937 (dark)
 
-/* Success button (white with arrow) */
-background: white;
-color: #64748B;
-border: 1px solid #E2E8F0;
+### Typography
 
-/* Disabled button (light blue) */
-background: rgba(79, 127, 255, 0.1);
-color: #4F7FFF;
-```
+- Font Family: System UI
+- Headings: 24px, 600 weight
+- Body: 16px, 400 weight
+- Buttons: 14px, 500 weight
 
-### Dark Theme Support
-```css
-/* Dark theme variations */
-.dark .modal-content {
-    background: #1F2937;
-}
+## Best Practices
 
-.dark .action-button.success {
-    background: #1F2937;
-    border-color: #374151;
-    color: #9CA3AF;
-}
-```
+1. Always provide a `blockExplorerUrl` appropriate for the chain being used
+2. Handle transaction errors gracefully
+3. Provide clear feedback for transaction states
+4. Use appropriate social media and support channel URLs
+5. Consider implementing retry logic for failed transactions
+6. Test thoroughly on different networks and with different transaction types
 
-## Development
+## Contributing
 
-```bash
-# Install dependencies
-npm install
-
-# Start development server
-npm run dev
-
-# Start preview page
-npm run test:page
-
-# Run tests
-npm run test
-
-# Build for production
-npm run build
-```
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Submit a pull request
 
 ## License
 

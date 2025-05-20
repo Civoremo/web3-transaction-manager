@@ -3,10 +3,10 @@
 <script lang="ts">
     import { TransactionModal } from '$lib';
     import { TEST_TRANSACTION_FLOW } from '$lib/mocks/testTransactionFlow';
-    import { MockSigner } from '$lib/mocks/mockSigner';
+    import { TestMockSigner } from './testMockSigner';
 
     let isModalOpen = false;
-    let signer = new MockSigner();
+    let signer = new TestMockSigner();
     let theme: 'light' | 'dark' = 'light';
     let allTransactionsComplete = false;
 

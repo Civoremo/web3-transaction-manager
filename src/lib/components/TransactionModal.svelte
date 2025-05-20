@@ -11,16 +11,16 @@
     export let signer: ethers.Signer;
     export let theme: 'light' | 'dark' = 'light';
     export let showSummary = false;
-    export let autoExecuteAfterApproval = false;
     export let title = 'Borrow 1000 USDC';
     export let subtitle = 'Variable Rolling Rate';
     export let positionsUrl = '#';
     export let socialLinks = {
-        x: 'https://x.com',
-        warpcast: 'https://warpcast.com',
-        telegram: 'https://t.me'
+        x: '',
+        warpcast: '',
+        telegram: ''
     };
-    export let etherscanBaseUrl = 'https://etherscan.io/tx/';
+    export let blockExplorerUrl: string;
+    export let supportChannelUrl = '';
 
     const dispatch = createEventDispatcher();
 
@@ -29,14 +29,15 @@
     let processingStartTime = new Map<string, number>();
     let processingDuration = new Map<string, number>();
     let durationInterval: number;
-    let autoExecuteInterval: number;
 
     onMount(() => {
         states = new Map(transactions.map(tx => [tx.id, { status: 'pending' }]));
         currentIndex = 0;
+        return () => {
+            if (durationInterval) clearInterval(durationInterval);
+        };
     });
 
-    // Update processing durations every second
     function updateDurations() {
         const now = Date.now();
         processingDuration = new Map(
@@ -47,30 +48,7 @@
         );
     }
 
-    function checkAutoExecute() {
-        if (!autoExecuteAfterApproval) return;
-        
-        const currentTx = transactions[currentIndex];
-        if (!currentTx) return;
-
-        // Get the first transaction's state
-        const firstTxState = states.get(transactions[0].id)?.status;
-        const currentTxState = states.get(currentTx.id)?.status;
-        
-        // Only auto-execute if:
-        // 1. First transaction is successful (user approved)
-        // 2. Current transaction is pending
-        // 3. No other transaction is processing
-        const isProcessing = Array.from(states.values()).some(state => state.status === 'processing');
-        if (firstTxState === 'success' && 
-            currentTxState === 'pending' && 
-            !isProcessing) {
-            handleExecute(currentTx.id);
-        }
-    }
-
     function handleClose() {
-        if (autoExecuteInterval) clearInterval(autoExecuteInterval);
         dispatch('close');
     }
 
@@ -91,21 +69,12 @@
     }
 
     function handleCancel() {
-        if (autoExecuteInterval) clearInterval(autoExecuteInterval);
-        autoExecuteAfterApproval = false;
         dispatch('cancel');
     }
 
     function handleChat() {
-        dispatch('chat');
-    }
-
-    function toggleAutoExecute() {
-        autoExecuteAfterApproval = !autoExecuteAfterApproval;
-        if (autoExecuteAfterApproval) {
-            autoExecuteInterval = setInterval(checkAutoExecute, 2000);
-        } else if (autoExecuteInterval) {
-            clearInterval(autoExecuteInterval);
+        if (supportChannelUrl) {
+            window.open(supportChannelUrl, '_blank');
         }
     }
 
@@ -114,22 +83,11 @@
     $: hasError = transactions.some(tx => states.get(tx.id)?.status === 'failed');
     $: hasPending = transactions.some(tx => states.get(tx.id)?.status === 'pending');
 
-    // Watch for state changes to trigger auto-execute
-    $: {
-        if (states && currentTransaction) {
-            checkAutoExecute();
-        }
-    }
-
     // Start/stop intervals based on modal visibility
     $: if (isOpen) {
         durationInterval = setInterval(updateDurations, 1000);
-        if (autoExecuteAfterApproval) {
-            autoExecuteInterval = setInterval(checkAutoExecute, 2000);
-        }
     } else {
         if (durationInterval) clearInterval(durationInterval);
-        if (autoExecuteInterval) clearInterval(autoExecuteInterval);
         processingStartTime = new Map();
         processingDuration = new Map();
     }
@@ -168,42 +126,52 @@
             console.error(errorMsg);
             states.set(transaction.id, { status: 'failed', error: errorMsg });
             states = new Map(states);
-            dispatch('error', { transactionId: transaction.id, error: errorMsg });
             return;
         }
+
         states.set(transaction.id, { status: 'processing' });
         states = new Map(states);
+        processingStartTime.set(transaction.id, Date.now());
+
         try {
             const txResponse = await signer.sendTransaction({
                 to: transaction.params.to,
                 data: transaction.params.data,
                 value: transaction.params.value || '0'
             });
-            const receipt = await txResponse.wait();
-            states.set(transaction.id, { status: 'success', hash: receipt.hash });
+
+            // Update state with pending transaction hash
+            states.set(transaction.id, { 
+                status: 'processing',
+                hash: txResponse.hash 
+            });
             states = new Map(states);
-            dispatch('success', { transactionId: transaction.id, hash: receipt.hash });
+
+            const receipt = await txResponse.wait();
+            
+            // Update final success state
+            states.set(transaction.id, { 
+                status: 'success',
+                hash: receipt.hash 
+            });
+            states = new Map(states);
+            
+            // Move to next transaction if available
             if (currentIndex < transactions.length - 1) {
                 currentIndex++;
             }
         } catch (error) {
             console.error('Transaction failed:', error);
-            const errorMsg = error?.message || 'Transaction failed';
-            states.set(transaction.id, { status: 'failed', error: errorMsg });
+            states.set(transaction.id, { 
+                status: 'failed',
+                error: error.message 
+            });
             states = new Map(states);
-            dispatch('error', { transactionId: transaction.id, error: errorMsg });
         }
     }
 
-    onMount(() => {
-        return () => {
-            if (durationInterval) clearInterval(durationInterval);
-            if (autoExecuteInterval) clearInterval(autoExecuteInterval);
-        };
-    });
-
-    // Add this computed property to check if all transactions are successful
-    $: allTransactionsSuccessful = transactions.length > 0 && transactions.every(tx => states.get(tx.id)?.status === 'success');
+    $: allTransactionsSuccessful = transactions.length > 0 && 
+        transactions.every(tx => states.get(tx.id)?.status === 'success');
 </script>
 
 {#if isOpen}
@@ -247,7 +215,7 @@
                             <div class="tx-info">{transaction.metadata.title}</div>
                             {#if states.get(transaction.id)?.status === 'success'}
                                 <a
-                                    href={`${etherscanBaseUrl}${states.get(transaction.id)?.hash}`}
+                                    href={`${blockExplorerUrl}${states.get(transaction.id)?.hash}`}
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     class="action-button success"
@@ -256,7 +224,7 @@
                                 </a>
                             {:else if states.get(transaction.id)?.status === 'processing'}
                                 <a
-                                    href={`${etherscanBaseUrl}${states.get(transaction.id)?.hash}`}
+                                    href={`${blockExplorerUrl}${states.get(transaction.id)?.hash}`}
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     class="action-button processing"

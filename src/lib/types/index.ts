@@ -1,6 +1,12 @@
 import type { BigNumberish } from 'ethers';
 
-export type TransactionType = 'standard' | 'contract' | 'approval' | 'signature';
+/**
+ * Transaction types for different kinds of blockchain transactions
+ * - 'approval': Token approval transactions (e.g., approving USDC for a protocol)
+ * - 'contract': Smart contract interaction transactions (e.g., calling contract functions)
+ * - 'standard': Standard ETH transfers or simple transactions
+ */
+export type TransactionType = 'approval' | 'contract' | 'standard';
 
 export type TransactionStatus = 'pending' | 'processing' | 'success' | 'failed' | 'cancelled';
 
