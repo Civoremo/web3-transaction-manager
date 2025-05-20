@@ -44,6 +44,7 @@
 	},
 	"devDependencies": {
 		"@sveltejs/adapter-auto": "1.0.0",
+		"@sveltejs/adapter-static": "^1.0.0",
 		"@sveltejs/kit": "1.24.0",
 		"@sveltejs/vite-plugin-svelte": "2.4.5",
 		"@testing-library/jest-dom": "^6.4.2",
@@ -64,8 +65,8 @@
 		"ethers": "^6.13.7"
 	},
 	"peerDependencies": {
-		"svelte": "^4.2.7",
-		"@sveltejs/kit": ">=1.0.0 <2.0.0"
+		"@sveltejs/kit": ">=1.0.0 <2.0.0",
+		"svelte": "^4.2.7"
 	},
 	"repository": {
 		"type": "git",
