@@ -254,3 +254,19 @@ You can pass this object to the `customTheme` prop of `TransactionModal`:
 
 All color fields are optional; any omitted field will fall back to the default theme value.
 
+## TransactionModal Theme Customization & Live Preview
+
+- **Live Theme Editing:** Easily customize modal and button colors using the built-in color pickers or hex/RGBA fields.
+- **Accurate Modal Preview:** The preview modal on the test page now matches the actual modal in width (480px), layout, and spinner appearance.
+- **No Squishing:** The preview modal is always centered and never squished, regardless of screen size.
+- **Instant Feedback:** Theme changes are reflected live in the preview modal, so you can see exactly how your custom theme will look.
+- **Improved Color Picker:** Large, user-friendly color swatches and support for both hex and RGBA values.
+
+## Developer Test Page
+- Visit `/test` to experiment with theme colors and see a live, accurate preview of the TransactionModal.
+- All modal states (active, processing, success, error, disabled) are represented for easy visual testing.
+
+---
+
+For more details, see the `claude.md` or the test page in the project.
+

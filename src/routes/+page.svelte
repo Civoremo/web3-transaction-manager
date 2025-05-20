@@ -10,6 +10,8 @@
     let signer = new MockSigner();
     let transactions = TEST_TRANSACTION_FLOW;
     let currentTheme: 'light' | 'dark' = 'light';
+    let closeOnOverlayClick = false;
+    let modalKey = 0;
     
     // Create a store for the theme
     const themeStore = writable<ThemeConfig>({
@@ -127,6 +129,12 @@
         };
     }
 
+    function resetTestFlow() {
+        transactions = JSON.parse(JSON.stringify(TEST_TRANSACTION_FLOW));
+        signer = new MockSigner();
+        modalKey += 1;
+    }
+
     // Helper to check if a color is hex
     function isHexColor(val: string) {
         return /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/.test(val);
@@ -140,18 +148,25 @@
         <h2>TransactionModal Component</h2>
         <div class="component-demo">
             <div class="modal-controls">
+                <label class="toggle-label">
+                    <input type="checkbox" bind:checked={closeOnOverlayClick} />
+                    Allow closing modal by clicking outside
+                </label>
                 <button on:click={() => isOpen = true}>Open Transaction Flow</button>
             </div>
+            {#key modalKey}
             <TransactionModal
                 {isOpen}
                 {transactions}
                 {signer}
                 theme={currentTheme}
                 customTheme={$themeStore}
-                on:close={() => isOpen = false}
+                closeOnOverlayClick={closeOnOverlayClick}
+                on:close={() => { isOpen = false; resetTestFlow(); }}
                 on:success={handleSuccess}
                 on:error={handleError}
             />
+            {/key}
         </div>
     </section>
     
@@ -258,10 +273,21 @@
                         --disabled-color: {$themeStore[currentTheme].disabled};
                         --hover-color: {$themeStore[currentTheme].hover};
                         --card-color: {$themeStore[currentTheme].card};
+                        --button-primary: {$themeStore[currentTheme].buttonPrimary};
+                        --button-primary-text: {$themeStore[currentTheme].buttonPrimaryText};
+                        --button-disabled: {$themeStore[currentTheme].buttonDisabled};
+                        --button-disabled-text: {$themeStore[currentTheme].buttonDisabledText};
+                        --button-error: {$themeStore[currentTheme].buttonError};
+                        --button-error-text: {$themeStore[currentTheme].buttonErrorText};
+                        --button-success: {$themeStore[currentTheme].buttonSuccess};
+                        --button-success-text: {$themeStore[currentTheme].buttonSuccessText};
+                        --button-processing: {$themeStore[currentTheme].buttonProcessing};
+                        --button-processing-text: {$themeStore[currentTheme].buttonProcessingText};
+                        --button-hover: {$themeStore[currentTheme].buttonHover};
                     ">
                         <header class="preview-header">
                             <div class="title-section">
-                                <h2>Approve USDC</h2>
+                                <h2>Borrow 1000 USDC</h2>
                                 <div class="subtitle">Variable Rolling Rate</div>
                             </div>
                             <button class="close-button">×</button>
@@ -274,8 +300,39 @@
                                     <button class="action-button active">Approve</button>
                                 </div>
                                 <div class="transaction-row">
-                                    <div class="tx-info">Borrow USDC</div>
-                                    <button class="action-button disabled">Borrow</button>
+                                    <div class="tx-info">Authorize auto-roll contract</div>
+                                    <button class="action-button processing">
+                                        <span class="spinner"></span>
+                                        Pending...
+                                        <span class="external-link-icon">
+                                            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+                                                <path d="M18 13v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+                                                <polyline points="15 3 21 3 21 9"/>
+                                                <line x1="10" y1="14" x2="21" y2="3"/>
+                                            </svg>
+                                        </span>
+                                    </button>
+                                </div>
+                                <div class="transaction-row">
+                                    <div class="tx-info">Deposit and borrow</div>
+                                    <a class="action-button success" href="#" tabindex="-1">
+                                        Success
+                                        <span class="external-link-icon">
+                                            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+                                                <path d="M18 13v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+                                                <polyline points="15 3 21 3 21 9"/>
+                                                <line x1="10" y1="14" x2="21" y2="3"/>
+                                            </svg>
+                                        </span>
+                                    </a>
+                                </div>
+                                <div class="transaction-row">
+                                    <div class="tx-info">Sign auto-roll terms</div>
+                                    <button class="action-button error">Retry</button>
+                                </div>
+                                <div class="transaction-row">
+                                    <div class="tx-info">Withdraw collateral</div>
+                                    <button class="action-button disabled" disabled>Disabled</button>
                                 </div>
                             </div>
                         </div>
@@ -352,13 +409,17 @@
 
     .preview-container {
         position: relative;
-        height: 400px;
+        min-height: 520px;
+        min-width: 480px;
+        width: 100%;
         display: flex;
         align-items: center;
         justify-content: center;
         background: #f9f9f9;
         border-radius: 8px;
-        padding: 2rem;
+        padding: 0;
+        box-sizing: border-box;
+        overflow: auto;
     }
 
     .preview-container.dark {
@@ -374,6 +435,7 @@
         overflow: hidden;
         color: var(--text-color);
         box-shadow: 0 8px 32px rgba(16, 30, 54, 0.12);
+        margin: 0 auto;
     }
 
     .preview-header {
@@ -414,7 +476,7 @@
     }
 
     .preview-body {
-        padding: 0 32px;
+        padding: 0 32px 24px 32px;
     }
 
     .transaction-list {
@@ -450,22 +512,69 @@
         align-items: center;
         justify-content: center;
         cursor: pointer;
+        text-decoration: none;
     }
 
     .action-button.active {
-        background: var(--primary-color);
-        color: white;
+        background: var(--button-primary);
+        color: var(--button-primary-text);
     }
 
     .action-button.active:hover {
-        background: var(--hover-color);
+        background: var(--button-hover);
     }
 
     .action-button.disabled {
-        background: rgba(79, 127, 255, 0.1);
-        color: var(--primary-color);
+        background: var(--button-disabled);
+        color: var(--button-disabled-text);
         cursor: not-allowed;
         opacity: 1;
+    }
+
+    .action-button.processing {
+        background: var(--button-processing);
+        color: var(--button-processing-text);
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .action-button.processing:hover {
+        background: var(--button-hover);
+    }
+
+    .action-button.success {
+        background: var(--button-success);
+        color: var(--button-success-text);
+        border: 1px solid var(--border-color);
+        padding-right: 12px;
+    }
+
+    .action-button.success:hover {
+        background: #F8FAFC;
+    }
+
+    .action-button.error {
+        background: var(--button-error);
+        color: var(--button-error-text);
+        cursor: pointer;
+    }
+
+    .action-button.error:hover {
+        background: #B91C1C;
+    }
+
+    .external-link-icon {
+        display: inline-flex;
+        align-items: center;
+        margin-left: 0.25em;
+        vertical-align: middle;
+        color: inherit;
+    }
+    .external-link-icon svg {
+        width: 1em;
+        height: 1em;
+        stroke: currentColor;
     }
 
     .preview-footer {
@@ -670,5 +779,93 @@
         font-size: 0.8rem;
         color: #888;
         margin-top: 0.25rem;
+    }
+
+    .toggle-label {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 1rem;
+        color: #444;
+    }
+    .toggle-label input[type="checkbox"] {
+        width: 18px;
+        height: 18px;
+    }
+
+    .spinner {
+        width: 16px;
+        height: 16px;
+        border: 2px solid currentColor;
+        border-top-color: transparent;
+        border-radius: 50%;
+        margin-right: 8px;
+        animation: spin 1s linear infinite;
+        display: inline-block;
+        vertical-align: middle;
+    }
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
+    /* Preview Modal Styles */
+    .preview-modal-container {
+        width: 480px;
+        max-width: 100%;
+    }
+
+    .preview-modal-header {
+        margin-bottom: 24px;
+        text-align: left;
+        position: relative;
+    }
+
+    .preview-modal-title-section {
+        text-align: center;
+        flex: 1;
+    }
+
+    .preview-modal-title {
+        font-size: 24px;
+        font-weight: 600;
+        color: #111827;
+    }
+
+    .preview-modal-body {
+        padding: 1rem;
+    }
+
+    .preview-modal-action-button {
+        padding: 8px 16px;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 500;
+        border: none;
+        outline: none;
+        transition: all 0.2s;
+        min-width: 90px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        text-decoration: none;
+        background: var(--button-primary, #4F7FFF);
+        color: var(--button-primary-text, #fff);
+    }
+
+    .preview-modal-action-button .spinner {
+        width: 16px;
+        height: 16px;
+        border: 2px solid currentColor;
+        border-top-color: transparent;
+        border-radius: 50%;
+        margin-right: 8px;
+        animation: spin 1s linear infinite;
+        display: inline-block;
+        vertical-align: middle;
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
     }
 </style> 

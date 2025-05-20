@@ -24,6 +24,7 @@
     export let blockExplorerUrl: string;
     export let supportChannelUrl = 'https://t.me/your-support';
     export let customTheme: Partial<ThemeConfig> = {};
+    export let closeOnOverlayClick: boolean = false;
 
     const dispatch = createEventDispatcher();
 
@@ -187,7 +188,7 @@
 <div 
     class="modal-overlay"
     class:dark={theme === 'dark'}
-    on:click={handleClose}
+    on:click={closeOnOverlayClick ? handleClose : undefined}
     on:keydown={e => e.key === 'Escape' && handleClose()}
     role="dialog"
     aria-modal="true"
@@ -251,7 +252,14 @@
                                     rel="noopener noreferrer"
                                     class="action-button success"
                                 >
-                                    Success ↗
+                                    Success
+                                    <span class="external-link-icon">
+                                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+                                            <path d="M18 13v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+                                            <polyline points="15 3 21 3 21 9"/>
+                                            <line x1="10" y1="14" x2="21" y2="3"/>
+                                        </svg>
+                                    </span>
                                 </a>
                             {:else if states.get(transaction.id)?.status === 'processing'}
                                 <a
@@ -261,7 +269,14 @@
                                     class="action-button processing"
                                 >
                                     <span class="spinner"></span>
-                                    Pending... ↗
+                                    Pending...
+                                    <span class="external-link-icon">
+                                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+                                            <path d="M18 13v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+                                            <polyline points="15 3 21 3 21 9"/>
+                                            <line x1="10" y1="14" x2="21" y2="3"/>
+                                        </svg>
+                                    </span>
                                 </a>
                             {:else if states.get(transaction.id)?.status === 'failed'}
                                 <button class="action-button error" on:click={() => executeTransaction(transaction)}>
@@ -450,7 +465,7 @@
     .spinner {
         width: 16px;
         height: 16px;
-        border: 2px solid #fff;
+        border: 2px solid currentColor;
         border-top-color: transparent;
         border-radius: 50%;
         margin-right: 8px;
@@ -618,5 +633,18 @@
         --border-color: var(--border-color, #E5E7EB);
         --disabled-color: var(--disabled-color, #9CA3AF);
         --hover-color: var(--hover-color, #3B82F6);
+    }
+
+    .external-link-icon {
+        display: inline-flex;
+        align-items: center;
+        margin-left: 0.25em;
+        vertical-align: middle;
+        color: inherit;
+    }
+    .external-link-icon svg {
+        width: 1em;
+        height: 1em;
+        stroke: currentColor;
     }
 </style> 
