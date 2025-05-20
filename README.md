@@ -256,8 +256,10 @@ All color fields are optional; any omitted field will fall back to the default t
 
 ## Svelte 4 Compatibility
 - **Svelte:** ^4.2.7
-- **@sveltejs/vite-plugin-svelte:** ^2.4.5
-- **Vite:** ^4.0.0
+- **@sveltejs/kit:** 1.24.0
+- **@sveltejs/vite-plugin-svelte:** 2.4.5
+- **@sveltejs/adapter-auto:** 1.0.0
+- **vite:** ^4.0.0
 
 > **Migration Note:** If you are upgrading from Svelte 5, update your dependencies as above and run `npm install --legacy-peer-deps`. Remove any Svelte 5-specific syntax or APIs from your codebase.
 
@@ -268,11 +270,18 @@ All color fields are optional; any omitted field will fall back to the default t
 - **Instant Feedback:** Theme changes are reflected live in the preview modal, so you can see exactly how your custom theme will look.
 - **Improved Color Picker:** Large, user-friendly color swatches and support for both hex and RGBA values.
 
-## Developer Test Page
-- Visit `/test` to experiment with theme colors and see a live, accurate preview of the TransactionModal.
-- All modal states (active, processing, success, error, disabled) are represented for easy visual testing.
+## Running Locally
+
+To run the preview and test the TransactionModal component locally:
+
+```sh
+npm install
+npm run dev
+```
+
+This will start a local development server and open the preview page at the root URL (http://localhost:5173 or similar). The preview page allows you to interactively test and customize the TransactionModal component and theme.
 
 ---
 
-For more details, see the `claude.md` or the test page in the project.
+For more details, see the `claude.md` or the preview page in the project.
 
