@@ -1,19 +1,27 @@
-export type TransactionStatus = 'pending' | 'processing' | 'success' | 'failed' | 'skipped' | 'cancelled';
+export type TransactionType = 'approval' | 'contract' | 'standard';
+export type TransactionStatus = 'pending' | 'processing' | 'success' | 'failed' | 'skipped';
 export interface TransactionState {
     status: TransactionStatus;
-    gasUsed?: string;
-    error?: string;
+    hash?: string;
+    error?: Error;
+}
+export interface TransactionParams {
+    to: string;
+    data: string;
+    value?: string;
+    from?: string;
+    gasLimit?: string;
+    maxFeePerGas?: string;
+    maxPriorityFeePerGas?: string;
+}
+export interface TransactionMetadata {
+    title: string;
+    buttonLabel: string;
+    description?: string;
 }
 export interface Transaction {
     id: string;
-    type: 'approval' | 'contract' | 'standard';
-    params: {
-        to: string;
-        value: string;
-        data: string;
-    };
-    metadata?: {
-        title: string;
-        description: string;
-    };
+    type: TransactionType;
+    params: TransactionParams;
+    metadata: TransactionMetadata;
 }

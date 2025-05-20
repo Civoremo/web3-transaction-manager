@@ -254,8 +254,14 @@ You can pass this object to the `customTheme` prop of `TransactionModal`:
 
 All color fields are optional; any omitted field will fall back to the default theme value.
 
-## TransactionModal Theme Customization & Live Preview
+## Svelte 4 Compatibility
+- **Svelte:** ^4.2.7
+- **@sveltejs/vite-plugin-svelte:** ^2.4.5
+- **Vite:** ^4.0.0
 
+> **Migration Note:** If you are upgrading from Svelte 5, update your dependencies as above and run `npm install --legacy-peer-deps`. Remove any Svelte 5-specific syntax or APIs from your codebase.
+
+## TransactionModal Theme Customization & Live Preview
 - **Live Theme Editing:** Easily customize modal and button colors using the built-in color pickers or hex/RGBA fields.
 - **Accurate Modal Preview:** The preview modal on the test page now matches the actual modal in width (480px), layout, and spinner appearance.
 - **No Squishing:** The preview modal is always centered and never squished, regardless of screen size.

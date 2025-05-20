@@ -326,19 +326,25 @@ You can pass this object to the `customTheme` prop of `TransactionModal`:
 
 All color fields are optional; any omitted field will fall back to the default theme value. 
 
-# TransactionModal Component - Theme Customization & Preview
+# TransactionModal Component - Svelte 4 Compatibility
+
+## Compatibility
+- **Svelte:** ^4.2.7
+- **@sveltejs/vite-plugin-svelte:** ^2.4.5
+- **Vite:** ^4.0.0
+
+> **Note:** This project is now fully compatible with Svelte 4. If you are migrating from Svelte 5, ensure you downgrade your dependencies as above. Remove any Svelte 5-specific syntax or APIs from your codebase.
 
 ## Features
-- **Live Theme Customization:** Developers can adjust all modal and button colors using color pickers or hex/RGBA input fields.
-- **Accurate Modal Preview:** The preview modal now matches the actual modal in width (480px), layout, and spinner appearance, ensuring a true-to-life preview.
-- **Responsive Layout:** The preview modal is centered and never squished, regardless of screen size.
-- **Live Updates:** Any changes to the theme are instantly reflected in the preview modal.
-- **Improved Color Picker:** Color swatches are larger and easier to use, with support for both hex and RGBA values.
+- Live theme customization and preview remain fully functional.
+- The preview modal matches the actual modal in width, layout, and spinner appearance.
+- All developer tooling and test pages work as before.
 
-## Usage
-- Use the test page to experiment with theme colors and see changes live in the preview modal.
-- The preview modal is visually identical to the production modal, including button states and spinner color.
-
----
+## Migration
+If you were previously using Svelte 5, update your `package.json` as follows:
+- Set `"svelte": "^4.2.7"` in both `devDependencies` and `peerDependencies`.
+- Set `"@sveltejs/vite-plugin-svelte": "^2.4.5"`.
+- Set `"vite": "^4.0.0"`.
+- Run `npm install --legacy-peer-deps` to resolve dependency conflicts.
 
 For more details, see the main README or the test page in the project. 

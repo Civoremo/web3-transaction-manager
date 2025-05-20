@@ -17,6 +17,7 @@ declare const TransactionCard: $$__sveltets_2_IsomorphicComponent<{
     state: TransactionState | undefined;
     onExecute: () => void;
     onRetry: () => void;
+    theme?: "light" | "dark";
 }, {
     [evt: string]: CustomEvent<any>;
 }, {}, {}, string>;

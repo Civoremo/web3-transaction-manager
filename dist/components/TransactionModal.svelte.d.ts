@@ -1,4 +1,6 @@
-import type { Transaction, TransactionState } from '../types';
+import type { Transaction } from '../types';
+import { ethers } from 'ethers';
+import type { ThemeConfig } from '../types/theme';
 interface $$__sveltets_2_IsomorphicComponent<Props extends Record<string, any> = any, Events extends Record<string, any> = any, Slots extends Record<string, any> = any, Exports = {}, Bindings = string> {
     new (options: import('svelte').ComponentConstructorOptions<Props>): import('svelte').SvelteComponent<Props, Events, Slots> & {
         $$bindings?: Bindings;
@@ -15,11 +17,9 @@ interface $$__sveltets_2_IsomorphicComponent<Props extends Record<string, any> =
 declare const TransactionModal: $$__sveltets_2_IsomorphicComponent<{
     isOpen?: boolean;
     transactions?: Transaction[];
-    states: Map<string, TransactionState>;
-    currentIndex: number;
+    signer: ethers.Signer;
     theme?: "light" | "dark";
     showSummary?: boolean;
-    autoExecuteAfterApproval?: boolean;
     title?: string;
     subtitle?: string;
     positionsUrl?: string;
@@ -28,20 +28,17 @@ declare const TransactionModal: $$__sveltets_2_IsomorphicComponent<{
         warpcast: string;
         telegram: string;
     };
+    blockExplorerUrl: string;
+    supportChannelUrl?: string;
+    customTheme?: Partial<ThemeConfig>;
+    closeOnOverlayClick?: boolean;
 }, {
     click: MouseEvent;
-    close: CustomEvent<void>;
-    execute: CustomEvent<{
-        transactionId: string;
-    }>;
-    retry: CustomEvent<{
-        transactionId: string;
-    }>;
-    skip: CustomEvent<{
-        transactionId: string;
-    }>;
-    cancel: CustomEvent<void>;
-    chat: CustomEvent<void>;
+    keydown: KeyboardEvent;
+    close: CustomEvent<any>;
+    execute: CustomEvent<any>;
+    skip: CustomEvent<any>;
+    cancel: CustomEvent<any>;
 } & {
     [evt: string]: CustomEvent<any>;
 }, {}, {}, string>;
