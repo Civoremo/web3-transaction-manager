@@ -153,3 +153,104 @@ The components use a clean, modern design with support for both light and dark t
 
 MIT
 
+## Theme Customization
+
+You can fully customize the appearance of the TransactionModal and related components by passing a `customTheme` prop. This prop accepts a `ThemeConfig` object with separate color sets for `light` and `dark` themes.
+
+### Available Theme Parameters
+
+Each theme (light/dark) supports the following fields:
+
+```typescript
+interface ThemeColors {
+    primary: string;
+    success: string;
+    error: string;
+    text: string;
+    background: string;
+    border: string;
+    disabled: string;
+    hover: string;
+    card?: string; // Action container background
+    // Button colors
+    buttonPrimary?: string;
+    buttonPrimaryText?: string;
+    buttonDisabled?: string;
+    buttonDisabledText?: string;
+    buttonError?: string;
+    buttonErrorText?: string;
+    buttonSuccess?: string;
+    buttonSuccessText?: string;
+    buttonProcessing?: string;
+    buttonProcessingText?: string;
+    buttonHover?: string;
+}
+
+interface ThemeConfig {
+    light: ThemeColors;
+    dark: ThemeColors;
+}
+```
+
+### Example
+
+```typescript
+const customTheme = {
+    light: {
+        primary: '#4F7FFF',
+        success: '#10B981',
+        error: '#DC2626',
+        text: '#111827',
+        background: '#FFFFFF',
+        border: '#E5E7EB',
+        disabled: '#9CA3AF',
+        hover: '#3B82F6',
+        card: '#F7F7FA',
+        buttonPrimary: '#4F7FFF',
+        buttonPrimaryText: '#FFFFFF',
+        buttonDisabled: 'rgba(79,127,255,0.1)',
+        buttonDisabledText: '#4F7FFF',
+        buttonError: '#DC2626',
+        buttonErrorText: '#FFFFFF',
+        buttonSuccess: '#FFFFFF',
+        buttonSuccessText: '#64748B',
+        buttonProcessing: '#4F7FFF',
+        buttonProcessingText: '#FFFFFF',
+        buttonHover: '#3B66E5',
+    },
+    dark: {
+        primary: '#4F7FFF',
+        success: '#10B981',
+        error: '#DC2626',
+        text: '#FFFFFF',
+        background: '#1F2937',
+        border: '#374151',
+        disabled: '#9CA3AF',
+        hover: '#3B82F6',
+        card: '#374151',
+        buttonPrimary: '#4F7FFF',
+        buttonPrimaryText: '#FFFFFF',
+        buttonDisabled: 'rgba(79,127,255,0.1)',
+        buttonDisabledText: '#4F7FFF',
+        buttonError: '#DC2626',
+        buttonErrorText: '#FFFFFF',
+        buttonSuccess: '#1F2937',
+        buttonSuccessText: '#9CA3AF',
+        buttonProcessing: '#4F7FFF',
+        buttonProcessingText: '#FFFFFF',
+        buttonHover: '#3B66E5',
+    }
+};
+```
+
+You can pass this object to the `customTheme` prop of `TransactionModal`:
+
+```svelte
+<TransactionModal
+    customTheme={customTheme}
+    ...
+/>
+```
+
+All color fields are optional; any omitted field will fall back to the default theme value.
+

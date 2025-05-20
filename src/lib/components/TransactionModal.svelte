@@ -2,6 +2,8 @@
     import { createEventDispatcher, onMount } from 'svelte';
     import type { Transaction, TransactionType, TransactionStatus, TransactionState } from '../types';
     import { ethers } from 'ethers';
+    import type { ThemeConfig } from '$lib/types/theme';
+    import { defaultTheme } from '$lib/types/theme';
     import ProgressTracker from './ProgressTracker.svelte';
     import TransactionCard from './TransactionCard.svelte';
     import SummarySection from './SummarySection.svelte';
@@ -10,17 +12,18 @@
     export let transactions: Transaction[] = [];
     export let signer: ethers.Signer;
     export let theme: 'light' | 'dark' = 'light';
-    export let showSummary = false;
+    export let showSummary = true;
     export let title = 'Borrow 1000 USDC';
     export let subtitle = 'Variable Rolling Rate';
     export let positionsUrl = '#';
     export let socialLinks = {
-        x: '',
-        warpcast: '',
-        telegram: ''
+        x: 'https://x.com/your-handle',
+        warpcast: 'https://warpcast.com/your-handle',
+        telegram: 'https://t.me/your-channel'
     };
     export let blockExplorerUrl: string;
-    export let supportChannelUrl = '';
+    export let supportChannelUrl = 'https://t.me/your-support';
+    export let customTheme: Partial<ThemeConfig> = {};
 
     const dispatch = createEventDispatcher();
 
@@ -29,6 +32,12 @@
     let processingStartTime = new Map<string, number>();
     let processingDuration = new Map<string, number>();
     let durationInterval: number;
+
+    // Merge custom theme with default theme
+    $: themeConfig = {
+        light: { ...defaultTheme.light, ...customTheme.light },
+        dark: { ...defaultTheme.dark, ...customTheme.dark }
+    };
 
     onMount(() => {
         states = new Map(transactions.map(tx => [tx.id, { status: 'pending' }]));
@@ -184,6 +193,28 @@
     aria-modal="true"
     aria-labelledby="modal-title"
     tabindex="-1"
+    style="
+        --primary-color: {themeConfig[theme].primary};
+        --success-color: {themeConfig[theme].success};
+        --error-color: {themeConfig[theme].error};
+        --text-color: {themeConfig[theme].text};
+        --background-color: {themeConfig[theme].background};
+        --border-color: {themeConfig[theme].border};
+        --disabled-color: {themeConfig[theme].disabled};
+        --hover-color: {themeConfig[theme].hover};
+        --card-color: {themeConfig[theme].card || (theme === 'dark' ? '#374151' : '#F7F7FA')};
+        --button-primary: {themeConfig[theme].buttonPrimary || themeConfig[theme].primary};
+        --button-primary-text: {themeConfig[theme].buttonPrimaryText || '#fff'};
+        --button-disabled: {themeConfig[theme].buttonDisabled || 'rgba(79,127,255,0.1)'};
+        --button-disabled-text: {themeConfig[theme].buttonDisabledText || themeConfig[theme].primary};
+        --button-error: {themeConfig[theme].buttonError || themeConfig[theme].error};
+        --button-error-text: {themeConfig[theme].buttonErrorText || '#fff'};
+        --button-success: {themeConfig[theme].buttonSuccess || '#fff'};
+        --button-success-text: {themeConfig[theme].buttonSuccessText || '#64748B'};
+        --button-processing: {themeConfig[theme].buttonProcessing || themeConfig[theme].primary};
+        --button-processing-text: {themeConfig[theme].buttonProcessingText || '#fff'};
+        --button-hover: {themeConfig[theme].buttonHover || themeConfig[theme].hover};
+    "
 >
     <div 
         class="modal-content"
@@ -331,7 +362,7 @@
     }
 
     .transaction-row {
-        background: #F7F7FA;
+        background: var(--card-color, #F7F7FA);
         border-radius: 12px;
         padding: 16px 20px;
         margin-bottom: 12px;
@@ -363,37 +394,37 @@
     }
 
     .action-button.active {
-        background: #4F7FFF;
-        color: white;
+        background: var(--button-primary);
+        color: var(--button-primary-text);
     }
 
     .action-button.active:hover {
-        background: #3B66E5;
+        background: var(--button-hover);
     }
 
     .action-button.disabled {
-        background: rgba(79, 127, 255, 0.1);
-        color: #4F7FFF;
+        background: var(--button-disabled);
+        color: var(--button-disabled-text);
         cursor: not-allowed;
         opacity: 1;
     }
 
     .action-button.processing {
-        background: #4F7FFF;
-        color: white;
+        background: var(--button-processing);
+        color: var(--button-processing-text);
         display: inline-flex;
         align-items: center;
         gap: 8px;
     }
 
     .action-button.processing:hover {
-        background: #3B66E5;
+        background: var(--button-hover);
     }
 
     .action-button.success {
-        background: white;
-        color: #64748B;
-        border: 1px solid #E2E8F0;
+        background: var(--button-success);
+        color: var(--button-success-text);
+        border: 1px solid var(--border-color);
         padding-right: 12px;
     }
 
@@ -402,8 +433,8 @@
     }
 
     .action-button.error {
-        background: #DC2626;
-        color: white;
+        background: var(--button-error);
+        color: var(--button-error-text);
         cursor: pointer;
     }
 
@@ -538,7 +569,7 @@
     }
 
     .dark .transaction-row {
-        background: #374151;
+        background: var(--card-color, #374151);
     }
 
     .dark .tx-info {
@@ -571,5 +602,17 @@
 
     @keyframes spin {
         to { transform: rotate(360deg); }
+    }
+
+    /* Update CSS variables to use theme colors */
+    :global(.modal-backdrop) {
+        --primary-color: var(--primary-color, #4F7FFF);
+        --success-color: var(--success-color, #10B981);
+        --error-color: var(--error-color, #DC2626);
+        --text-color: var(--text-color, #111827);
+        --background-color: var(--background-color, #FFFFFF);
+        --border-color: var(--border-color, #E5E7EB);
+        --disabled-color: var(--disabled-color, #9CA3AF);
+        --hover-color: var(--hover-color, #3B82F6);
     }
 </style> 

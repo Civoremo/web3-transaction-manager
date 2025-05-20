@@ -13,7 +13,6 @@ A modal component that handles multi-step blockchain transactions with a clean, 
 Required:
 - `transactions`: Array of `Transaction` objects to be executed
 - `signer`: ethers.Signer instance for transaction signing
-- `blockExplorerUrl`: Base URL for the block explorer (e.g., 'https://etherscan.io/tx/' for Ethereum)
 
 Optional:
 - `isOpen`: Boolean to control modal visibility (default: false)
@@ -31,13 +30,35 @@ Optional:
   }
   ```
 - `supportChannelUrl`: URL for the support channel
+- `customTheme`: Custom theme configuration
+  ```typescript
+  {
+    light?: {
+      primary?: string;
+      success?: string;
+      error?: string;
+      text?: string;
+      background?: string;
+      border?: string;
+      disabled?: string;
+      hover?: string;
+    };
+    dark?: {
+      primary?: string;
+      success?: string;
+      error?: string;
+      text?: string;
+      background?: string;
+      border?: string;
+      disabled?: string;
+      hover?: string;
+    };
+  }
+  ```
 
 #### Events
 
 - `close`: Dispatched when the modal is closed
-- `execute`: Dispatched when a transaction is executed
-- `skip`: Dispatched when a transaction is skipped
-- `cancel`: Dispatched when the transaction flow is cancelled
 
 #### Usage
 
@@ -62,13 +83,37 @@ Optional:
             }
         }
     ];
+
+    // Optional: Custom theme configuration
+    const customTheme = {
+        light: {
+            primary: '#FF4F7F', // Custom primary color
+            success: '#10B981',
+            error: '#DC2626',
+            text: '#111827',
+            background: '#FFFFFF',
+            border: '#E5E7EB',
+            disabled: '#9CA3AF',
+            hover: '#FF3B6F'
+        },
+        dark: {
+            primary: '#FF4F7F', // Custom primary color
+            success: '#10B981',
+            error: '#DC2626',
+            text: '#F9FAFB',
+            background: '#1F2937',
+            border: '#374151',
+            disabled: '#6B7280',
+            hover: '#FF3B6F'
+        }
+    };
 </script>
 
 <TransactionModal
     {isOpen}
     {transactions}
     {signer}
-    blockExplorerUrl="https://etherscan.io/tx/"
+    theme="light"
     title="Borrow 1000 USDC"
     subtitle="Variable Rolling Rate"
     positionsUrl="/positions"
@@ -78,6 +123,7 @@ Optional:
         telegram: 'https://t.me/your-channel'
     }}
     supportChannelUrl="https://t.me/your-support"
+    {customTheme}
     on:close={() => isOpen = false}
 />
 ```
@@ -178,3 +224,104 @@ The components use a clean, modern design with support for both light and dark t
 ## License
 
 MIT 
+
+## Theme Customization
+
+You can fully customize the appearance of the TransactionModal and related components by passing a `customTheme` prop. This prop accepts a `ThemeConfig` object with separate color sets for `light` and `dark` themes.
+
+### Available Theme Parameters
+
+Each theme (light/dark) supports the following fields:
+
+```typescript
+interface ThemeColors {
+    primary: string;
+    success: string;
+    error: string;
+    text: string;
+    background: string;
+    border: string;
+    disabled: string;
+    hover: string;
+    card?: string; // Action container background
+    // Button colors
+    buttonPrimary?: string;
+    buttonPrimaryText?: string;
+    buttonDisabled?: string;
+    buttonDisabledText?: string;
+    buttonError?: string;
+    buttonErrorText?: string;
+    buttonSuccess?: string;
+    buttonSuccessText?: string;
+    buttonProcessing?: string;
+    buttonProcessingText?: string;
+    buttonHover?: string;
+}
+
+interface ThemeConfig {
+    light: ThemeColors;
+    dark: ThemeColors;
+}
+```
+
+### Example
+
+```typescript
+const customTheme = {
+    light: {
+        primary: '#4F7FFF',
+        success: '#10B981',
+        error: '#DC2626',
+        text: '#111827',
+        background: '#FFFFFF',
+        border: '#E5E7EB',
+        disabled: '#9CA3AF',
+        hover: '#3B82F6',
+        card: '#F7F7FA',
+        buttonPrimary: '#4F7FFF',
+        buttonPrimaryText: '#FFFFFF',
+        buttonDisabled: 'rgba(79,127,255,0.1)',
+        buttonDisabledText: '#4F7FFF',
+        buttonError: '#DC2626',
+        buttonErrorText: '#FFFFFF',
+        buttonSuccess: '#FFFFFF',
+        buttonSuccessText: '#64748B',
+        buttonProcessing: '#4F7FFF',
+        buttonProcessingText: '#FFFFFF',
+        buttonHover: '#3B66E5',
+    },
+    dark: {
+        primary: '#4F7FFF',
+        success: '#10B981',
+        error: '#DC2626',
+        text: '#FFFFFF',
+        background: '#1F2937',
+        border: '#374151',
+        disabled: '#9CA3AF',
+        hover: '#3B82F6',
+        card: '#374151',
+        buttonPrimary: '#4F7FFF',
+        buttonPrimaryText: '#FFFFFF',
+        buttonDisabled: 'rgba(79,127,255,0.1)',
+        buttonDisabledText: '#4F7FFF',
+        buttonError: '#DC2626',
+        buttonErrorText: '#FFFFFF',
+        buttonSuccess: '#1F2937',
+        buttonSuccessText: '#9CA3AF',
+        buttonProcessing: '#4F7FFF',
+        buttonProcessingText: '#FFFFFF',
+        buttonHover: '#3B66E5',
+    }
+};
+```
+
+You can pass this object to the `customTheme` prop of `TransactionModal`:
+
+```svelte
+<TransactionModal
+    customTheme={customTheme}
+    ...
+/>
+```
+
+All color fields are optional; any omitted field will fall back to the default theme value. 
