@@ -43,9 +43,9 @@
 		"publish": "npm run package && npm publish"
 	},
 	"devDependencies": {
-		"@sveltejs/adapter-auto": "^6.0.0",
-		"@sveltejs/kit": "^2.16.0",
-		"@sveltejs/vite-plugin-svelte": "^2.4.5",
+		"@sveltejs/adapter-auto": "3.1.0",
+		"@sveltejs/kit": "1.24.0",
+		"@sveltejs/vite-plugin-svelte": "2.4.5",
 		"@testing-library/jest-dom": "^6.4.2",
 		"@testing-library/svelte": "^5.2.7",
 		"eslint": "^9.25.1",
@@ -64,7 +64,8 @@
 		"ethers": "^6.13.7"
 	},
 	"peerDependencies": {
-		"svelte": "^4.2.7"
+		"svelte": "^4.2.7",
+		"@sveltejs/kit": ">=1.0.0 <2.0.0"
 	},
 	"repository": {
 		"type": "git",
@@ -76,5 +77,7 @@
 	"homepage": "https://web3-transaction-manager.netlify.app/",
 	"publishConfig": {
 		"access": "public"
-	}
+	},
+	"main": "./dist/index.js",
+	"module": "./dist/index.js"
 }

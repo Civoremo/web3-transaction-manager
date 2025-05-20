@@ -1,5 +1,5 @@
 import type { Transaction } from '../types';
-import { ethers } from 'ethers';
+// import { ethers } from 'ethers';
 
 // Mock contract addresses
 export const TEST_CONTRACTS = {
