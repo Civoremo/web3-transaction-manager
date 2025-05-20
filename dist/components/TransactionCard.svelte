@@ -5,7 +5,6 @@
     export let state: TransactionState | undefined;
     export let onExecute: () => void;
     export let onRetry: () => void;
-    export let theme: 'light' | 'dark' = 'light';
 
     $: status = state?.status || 'pending';
     $: error = state?.error;

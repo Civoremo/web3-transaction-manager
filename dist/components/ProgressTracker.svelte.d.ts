@@ -1,0 +1,24 @@
+import type { Transaction, TransactionState } from '../types';
+interface $$__sveltets_2_IsomorphicComponent<Props extends Record<string, any> = any, Events extends Record<string, any> = any, Slots extends Record<string, any> = any, Exports = {}, Bindings = string> {
+    new (options: import('svelte').ComponentConstructorOptions<Props>): import('svelte').SvelteComponent<Props, Events, Slots> & {
+        $$bindings?: Bindings;
+    } & Exports;
+    (internal: unknown, props: Props & {
+        $$events?: Events;
+        $$slots?: Slots;
+    }): Exports & {
+        $set?: any;
+        $on?: any;
+    };
+    z_$$bindings?: Bindings;
+}
+declare const ProgressTracker: $$__sveltets_2_IsomorphicComponent<{
+    transactions?: Transaction[];
+    states: Map<string, TransactionState>;
+    currentIndex: number;
+    theme?: "light" | "dark";
+}, {
+    [evt: string]: CustomEvent<any>;
+}, {}, {}, string>;
+type ProgressTracker = InstanceType<typeof ProgressTracker>;
+export default ProgressTracker;

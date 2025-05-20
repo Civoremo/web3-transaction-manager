@@ -1,4 +1,5 @@
 import type { Transaction } from '../types';
+import { ethers } from 'ethers';
 
 // Mock contract addresses
 export const TEST_CONTRACTS = {
@@ -8,70 +9,70 @@ export const TEST_CONTRACTS = {
     CONTRACT_3: '0x4567890123456789012345678901234567890123',
 };
 
+const MOCK_LENDER_ADDRESS = '0x1234567890123456789012345678901234567890';
+const MOCK_CONTRACT_ADDRESS = '0x0987654321098765432109876543210987654321';
+
+// Example of pre-encoded function data that would come from the frontend
+const ENCODED_APPROVE = '0x095ea7b3000000000000000000000000123456789012345678901234567890123456789000000000000000000000000000000000000000000000000000000000000000ff';
+const ENCODED_SET_CREDIT_MARKET = '0x7b123f450000000000000000000000001234567890123456789012345678901234567890ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff00000000000000000000000000000000000000000000000000000000000003e80000000000000000000000000000000000000000000000000000000000278d000000000000000000000000000000000000000000000000000000000063c25d5500000000000000000000000000000000000000000000000000000000000003e80000000000000000000000000000000000000000000000000000000000000000';
+const ENCODED_DEPOSIT = '0x4b78901200000000000000000000000000000000000000000000000000000000000003e8000000000000000000000000123456789012345678901234567890123456789';
+const ENCODED_SIGN = '0x3c7894560000000000000000000000000000000000000000000000000000000000000040000000000000000000000000000000000000000000000000000000006579fb3800000000000000000000000000000000000000000000000000000000000000066076312e302e3000000000000000000000000000000000000000000000000000';
+
 export const TEST_TRANSACTION_FLOW: Transaction[] = [
     {
-        id: 'tx-approve',
+        id: 'tx1',
         type: 'approval',
         params: {
-            to: TEST_CONTRACTS.TOKEN,
-            value: '0',
-            data: '0x095ea7b3' // approve(address,uint256)
+            to: MOCK_CONTRACT_ADDRESS,
+            data: ENCODED_APPROVE,
+            value: '0'
         },
         metadata: {
-            title: 'Approve Token',
-            description: 'Approve tokens for smart contract interaction'
+            title: 'Approve USDC',
+            buttonLabel: 'Approve',
+            description: 'Approve USDC for protocol interaction'
         }
     },
     {
-        id: 'tx-deposit',
+        id: 'tx2',
         type: 'contract',
         params: {
-            to: TEST_CONTRACTS.CONTRACT_1,
-            value: '0',
-            data: '0xb6b55f25' // deposit(uint256)
+            to: MOCK_LENDER_ADDRESS,
+            data: ENCODED_SET_CREDIT_MARKET,
+            value: '0'
         },
         metadata: {
-            title: 'Deposit Funds',
-            description: 'Deposit tokens into the protocol'
+            title: 'Authorize auto-roll contract',
+            buttonLabel: 'Authorize',
+            description: 'Authorize the auto-roll contract'
         }
     },
     {
-        id: 'tx-contract1',
-        type: 'contract',
+        id: 'tx3',
+        type: 'standard',
         params: {
-            to: TEST_CONTRACTS.CONTRACT_1,
-            value: '0',
-            data: '0xfe4b84df' // initialize(uint256,uint256)
+            to: MOCK_LENDER_ADDRESS,
+            data: ENCODED_DEPOSIT,
+            value: '0'
         },
         metadata: {
-            title: 'Initialize Position',
-            description: 'Set up your position in Contract 1'
+            title: 'Deposit and borrow',
+            buttonLabel: 'Create Loan',
+            description: 'Create your loan position'
         }
     },
     {
-        id: 'tx-contract2',
-        type: 'contract',
+        id: 'tx4',
+        type: 'standard',
         params: {
-            to: TEST_CONTRACTS.CONTRACT_2,
-            value: '0',
-            data: '0x94b918de' // optimize(uint256,uint256)
+            to: MOCK_LENDER_ADDRESS,
+            data: ENCODED_SIGN,
+            value: '0'
         },
         metadata: {
-            title: 'Optimize Strategy',
-            description: 'Optimize your position in Contract 2'
-        }
-    },
-    {
-        id: 'tx-contract3',
-        type: 'contract',
-        params: {
-            to: TEST_CONTRACTS.CONTRACT_3,
-            value: '0',
-            data: '0x89f71d3e' // finalize(uint256,bool)
-        },
-        metadata: {
-            title: 'Finalize Setup',
-            description: 'Complete setup in Contract 3'
+            title: 'Sign auto-roll terms',
+            buttonLabel: 'Sign',
+            description: 'Sign the auto-roll terms'
         }
     }
 ];

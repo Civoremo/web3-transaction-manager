@@ -1,30 +1,40 @@
 <script lang="ts">
     import { createEventDispatcher, onMount } from 'svelte';
-    import type { Transaction, TransactionState } from '../types';
+    import type { Transaction, TransactionType, TransactionStatus, TransactionState } from '../types';
+    import { ethers } from 'ethers';
     import ProgressTracker from './ProgressTracker.svelte';
     import TransactionCard from './TransactionCard.svelte';
     import SummarySection from './SummarySection.svelte';
 
     export let isOpen = false;
     export let transactions: Transaction[] = [];
-    export let states: Map<string, TransactionState>;
-    export let currentIndex: number;
+    export let signer: ethers.Signer;
     export let theme: 'light' | 'dark' = 'light';
     export let showSummary = false;
     export let autoExecuteAfterApproval = false;
+    export let title = 'Borrow 1000 USDC';
+    export let subtitle = 'Variable Rolling Rate';
+    export let positionsUrl = '#';
+    export let socialLinks = {
+        x: 'https://x.com',
+        warpcast: 'https://warpcast.com',
+        telegram: 'https://t.me'
+    };
+    export let etherscanBaseUrl = 'https://etherscan.io/tx/';
 
-    const dispatch = createEventDispatcher<{
-        close: void;
-        execute: { transactionId: string };
-        retry: { transactionId: string };
-        skip: { transactionId: string };
-        cancel: void;
-    }>();
+    const dispatch = createEventDispatcher();
 
+    let states: Map<string, TransactionState> = new Map();
+    let currentIndex = 0;
     let processingStartTime = new Map<string, number>();
     let processingDuration = new Map<string, number>();
     let durationInterval: number;
     let autoExecuteInterval: number;
+
+    onMount(() => {
+        states = new Map(transactions.map(tx => [tx.id, { status: 'pending' }]));
+        currentIndex = 0;
+    });
 
     // Update processing durations every second
     function updateDurations() {
@@ -71,12 +81,9 @@
     }
 
     function handleRetry(transactionId: string) {
-        // Clear any existing timers/state for this transaction
         processingStartTime.delete(transactionId);
         processingDuration.delete(transactionId);
-        
-        // Dispatch retry event first to let parent component update state
-        dispatch('retry', { transactionId });
+        handleExecute(transactionId);
     }
 
     function handleSkip(transactionId: string) {
@@ -87,6 +94,10 @@
         if (autoExecuteInterval) clearInterval(autoExecuteInterval);
         autoExecuteAfterApproval = false;
         dispatch('cancel');
+    }
+
+    function handleChat() {
+        dispatch('chat');
     }
 
     function toggleAutoExecute() {
@@ -123,12 +134,76 @@
         processingDuration = new Map();
     }
 
+    function canExecute(txId: string): boolean {
+        const state = states.get(txId)?.status;
+        if (!state) return false;
+        
+        // Find the index of this transaction
+        const txIndex = transactions.findIndex(tx => tx.id === txId);
+        if (txIndex === -1) return false;
+
+        // For the first transaction, it can be executed if pending
+        if (txIndex === 0) {
+            return state === 'pending';
+        }
+
+        // For subsequent transactions:
+        // 1. All previous transactions must be successful
+        // 2. This transaction must be pending or failed
+        const previousTxs = transactions.slice(0, txIndex);
+        const allPreviousSuccessful = previousTxs.every(tx => 
+            states.get(tx.id)?.status === 'success'
+        );
+
+        return (state === 'pending' || state === 'failed') && allPreviousSuccessful;
+    }
+
+    function closeModal() {
+        isOpen = false;
+    }
+
+    async function executeTransaction(transaction: Transaction) {
+        if (!signer) {
+            const errorMsg = 'No signer provided. Please connect your wallet.';
+            console.error(errorMsg);
+            states.set(transaction.id, { status: 'failed', error: errorMsg });
+            states = new Map(states);
+            dispatch('error', { transactionId: transaction.id, error: errorMsg });
+            return;
+        }
+        states.set(transaction.id, { status: 'processing' });
+        states = new Map(states);
+        try {
+            const txResponse = await signer.sendTransaction({
+                to: transaction.params.to,
+                data: transaction.params.data,
+                value: transaction.params.value || '0'
+            });
+            const receipt = await txResponse.wait();
+            states.set(transaction.id, { status: 'success', hash: receipt.hash });
+            states = new Map(states);
+            dispatch('success', { transactionId: transaction.id, hash: receipt.hash });
+            if (currentIndex < transactions.length - 1) {
+                currentIndex++;
+            }
+        } catch (error) {
+            console.error('Transaction failed:', error);
+            const errorMsg = error?.message || 'Transaction failed';
+            states.set(transaction.id, { status: 'failed', error: errorMsg });
+            states = new Map(states);
+            dispatch('error', { transactionId: transaction.id, error: errorMsg });
+        }
+    }
+
     onMount(() => {
         return () => {
             if (durationInterval) clearInterval(durationInterval);
             if (autoExecuteInterval) clearInterval(autoExecuteInterval);
         };
     });
+
+    // Add this computed property to check if all transactions are successful
+    $: allTransactionsSuccessful = transactions.length > 0 && transactions.every(tx => states.get(tx.id)?.status === 'success');
 </script>
 
 {#if isOpen}
@@ -136,13 +211,25 @@
     class="modal-overlay"
     class:dark={theme === 'dark'}
     on:click={handleClose}
+    on:keydown={e => e.key === 'Escape' && handleClose()}
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="modal-title"
+    tabindex="-1"
 >
     <div 
         class="modal-content"
         on:click|stopPropagation
+        on:keydown|stopPropagation
+        role="document"
     >
         <header class="modal-header">
-            <h2>Transaction Progress</h2>
+            <div class="title-section">
+                <h2 id="modal-title">{#if allTransactionsSuccessful}Borrow Successful!{:else}{title}{/if}</h2>
+                {#if !allTransactionsSuccessful}
+                    <div class="subtitle">{subtitle}</div>
+                {/if}
+            </div>
             <button 
                 class="close-button"
                 on:click={handleClose}
@@ -153,80 +240,61 @@
         </header>
 
         <div class="modal-body">
-            <ProgressTracker
-                {transactions}
-                {states}
-                {currentIndex}
-            />
-
-            {#if currentTransaction && !showSummary}
-                <div class="transaction-container">
-                    <TransactionCard
-                        transaction={currentTransaction}
-                        state={states.get(currentTransaction.id)}
-                        onExecute={() => handleExecute(currentTransaction.id)}
-                        onRetry={() => handleRetry(currentTransaction.id)}
-                    />
-                    {#if states.get(currentTransaction.id)?.status === 'processing'}
-                        <div class="processing-overlay">
-                            <div class="spinner"></div>
-                            <div class="duration">
-                                Processing... ({processingDuration.get(currentTransaction.id) || 0}s)
-                            </div>
-                        </div>
-                    {/if}
-                </div>
-
-                <div class="action-buttons">
-                    {#if currentIndex === 0 && states.get(currentTransaction.id)?.status === 'pending'}
-                        <div class="auto-execute-toggle">
-                            <label>
-                                <input 
-                                    type="checkbox" 
-                                    bind:checked={autoExecuteAfterApproval}
-                                    on:change={toggleAutoExecute}
+            {#if !allTransactionsSuccessful}
+                <div class="transaction-list">
+                    {#each transactions as transaction (transaction.id)}
+                        <div class="transaction-row">
+                            <div class="tx-info">{transaction.metadata.title}</div>
+                            {#if states.get(transaction.id)?.status === 'success'}
+                                <a
+                                    href={`${etherscanBaseUrl}${states.get(transaction.id)?.hash}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    class="action-button success"
                                 >
-                                Auto-execute remaining transactions after approval
-                            </label>
+                                    Success ↗
+                                </a>
+                            {:else if states.get(transaction.id)?.status === 'processing'}
+                                <a
+                                    href={`${etherscanBaseUrl}${states.get(transaction.id)?.hash}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    class="action-button processing"
+                                >
+                                    Pending... ↗
+                                </a>
+                            {:else if states.get(transaction.id)?.status === 'failed'}
+                                <button class="action-button error" on:click={() => executeTransaction(transaction)}>
+                                    Retry
+                                </button>
+                            {:else if transaction.id === transactions[currentIndex]?.id}
+                                <button class="action-button active" on:click={() => executeTransaction(transaction)}>
+                                    {transaction.metadata.buttonLabel}
+                                </button>
+                            {:else}
+                                <button class="action-button disabled">{transaction.metadata.buttonLabel}</button>
+                            {/if}
                         </div>
-                    {/if}
-                    {#if states.get(currentTransaction.id)?.status === 'failed'}
-                        <button 
-                            class="skip-button"
-                            on:click={() => handleSkip(currentTransaction.id)}
-                        >
-                            Skip Transaction
-                        </button>
-                    {/if}
-                    {#if hasPending}
-                        <button 
-                            class="cancel-button"
-                            on:click={handleCancel}
-                        >
-                            Cancel All Pending
-                        </button>
-                    {/if}
+                    {/each}
                 </div>
-            {/if}
-
-            {#if showSummary}
-                <SummarySection
-                    {transactions}
-                    {states}
-                    isComplete={true}
-                    {hasError}
-                />
+            {:else}
+                <div class="success-screen">
+                    <p class="success-message">
+                        Head to the <a href={positionsUrl}>Positions</a> page to track and manage your new position.
+                    </p>
+                    <div class="social-links">
+                        <button class="social-button" on:click={() => window.open(socialLinks.x, '_blank')}>Follow on X</button>
+                        <button class="social-button" on:click={() => window.open(socialLinks.warpcast, '_blank')}>Follow on Warpcast</button>
+                        <button class="social-button" on:click={() => window.open(socialLinks.telegram, '_blank')}>Follow on Telegram</button>
+                    </div>
+                </div>
             {/if}
         </div>
 
         <footer class="modal-footer">
-            {#if showSummary && !hasError}
-                <div class="success-message">All transactions completed successfully!</div>
-            {:else if showSummary && hasError}
-                <div class="error-message">Some transactions were skipped or failed. Check the summary above for details.</div>
-            {:else if autoExecuteAfterApproval}
-                <div class="info-message">Transactions will execute automatically after approval</div>
-            {/if}
+            <div class="help-text">
+                Need help or have feedback? <button class="chat-link" on:click={handleChat}>Chat with someone</button>.
+            </div>
         </footer>
     </div>
 </div>
@@ -235,255 +303,305 @@
 <style>
     .modal-overlay {
         position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.5);
+        inset: 0;
+        background: rgba(30, 41, 59, 0.18);
         display: flex;
-        justify-content: center;
         align-items: center;
+        justify-content: center;
         z-index: 1000;
     }
 
     .modal-content {
+        width: 480px;
+        padding: 32px;
+        border-radius: 16px;
         background: white;
-        border-radius: 8px;
-        width: 90%;
-        max-width: 600px;
-        max-height: 90vh;
-        overflow-y: auto;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    }
-
-    .dark .modal-content {
-        background: #1a1a1a;
-        color: #fff;
+        box-shadow: 0 8px 32px rgba(16, 30, 54, 0.12);
+        position: relative;
     }
 
     .modal-header {
-        padding: 1rem;
-        border-bottom: 1px solid #eee;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
+        margin-bottom: 24px;
+        text-align: left;
+        position: relative;
     }
 
-    .dark .modal-header {
-        border-color: #333;
+    .title-section {
+        text-align: center;
+        flex: 1;
     }
 
-    .modal-header h2 {
-        margin: 0;
-        font-size: 1.25rem;
+    h2 {
+        font-size: 24px;
         font-weight: 600;
+        color: #111827;
+    }
+
+    .subtitle {
+        font-size: 16px;
+        color: #6B7280;
+        margin-top: 4px;
     }
 
     .close-button {
+        position: absolute;
+        top: 0;
+        right: 0;
         background: none;
         border: none;
-        font-size: 1.5rem;
+        font-size: 24px;
+        color: #9CA3AF;
         cursor: pointer;
-        padding: 0.5rem;
-        color: #666;
-        transition: color 0.2s;
-    }
-
-    .dark .close-button {
-        color: #999;
-    }
-
-    .close-button:hover {
-        color: #000;
-    }
-
-    .dark .close-button:hover {
-        color: #fff;
     }
 
     .modal-body {
         padding: 1rem;
     }
 
-    .modal-footer {
-        padding: 1rem;
-        border-top: 1px solid #eee;
-        text-align: center;
+    .transaction-list {
+        margin-bottom: 0;
     }
 
-    .dark .modal-footer {
-        border-color: #333;
-    }
-
-    .success-message {
-        color: #4CAF50;
-        font-weight: 500;
-    }
-
-    .error-message {
-        color: #f44336;
-        font-weight: 500;
-    }
-
-    .dark .success-message {
-        color: #81c784;
-    }
-
-    .dark .error-message {
-        color: #e57373;
-    }
-
-    /* Responsive Design */
-    @media (max-width: 640px) {
-        .modal-content {
-            width: 95%;
-            max-height: 95vh;
-            margin: 1rem;
-        }
-
-        .modal-header h2 {
-            font-size: 1.1rem;
-        }
-
-        .modal-body {
-            padding: 0.75rem;
-        }
-    }
-
-    .transaction-container {
-        position: relative;
-        margin: 1rem 0;
-    }
-
-    .processing-overlay {
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: rgba(255, 255, 255, 0.8);
+    .transaction-row {
+        background: #F7F7FA;
+        border-radius: 12px;
+        padding: 16px 20px;
+        margin-bottom: 12px;
         display: flex;
-        flex-direction: column;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .tx-info {
+        font-size: 16px;
+        color: #111827;
+        font-weight: 500;
+    }
+
+    .action-button {
+        padding: 8px 16px;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 500;
+        border: none;
+        outline: none;
+        transition: all 0.2s;
+        min-width: 90px;
+        display: inline-flex;
         align-items: center;
         justify-content: center;
-        gap: 1rem;
-        border-radius: 8px;
+        cursor: pointer;
+        text-decoration: none;
     }
 
-    .dark .processing-overlay {
-        background: rgba(0, 0, 0, 0.8);
+    .action-button.active {
+        background: #4F7FFF;
+        color: white;
+    }
+
+    .action-button.active:hover {
+        background: #3B66E5;
+    }
+
+    .action-button.disabled {
+        background: rgba(79, 127, 255, 0.1);
+        color: #4F7FFF;
+        cursor: not-allowed;
+        opacity: 1;
+    }
+
+    .action-button.processing {
+        background: #4F7FFF;
+        color: white;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .action-button.processing:hover {
+        background: #3B66E5;
+    }
+
+    .action-button.success {
+        background: white;
+        color: #64748B;
+        border: 1px solid #E2E8F0;
+        padding-right: 12px;
+    }
+
+    .action-button.success:hover {
+        background: #F8FAFC;
+    }
+
+    .action-button.error {
+        background: #DC2626;
+        color: white;
+        cursor: pointer;
+    }
+
+    .action-button.error:hover {
+        background: #B91C1C;
+    }
+
+    .error-icon {
+        font-size: 1rem;
     }
 
     .spinner {
-        width: 30px;
-        height: 30px;
-        border: 3px solid #f3f3f3;
-        border-top: 3px solid #4CAF50;
+        width: 16px;
+        height: 16px;
+        border: 2px solid #fff;
+        border-top-color: transparent;
         border-radius: 50%;
         animation: spin 1s linear infinite;
     }
 
-    .dark .spinner {
-        border-color: #333;
-        border-top-color: #4CAF50;
+    .link-icon {
+        font-size: 1rem;
+        margin-left: 0.25rem;
     }
 
-    .duration {
-        font-size: 0.9rem;
-        color: #666;
-    }
-
-    .dark .duration {
-        color: #ccc;
-    }
-
-    @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-    }
-
-    .action-buttons {
+    .success-screen {
         display: flex;
-        gap: 1rem;
-        margin-top: 1rem;
-        justify-content: flex-end;
-    }
-
-    .skip-button,
-    .cancel-button {
-        padding: 0.5rem 1rem;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-        font-size: 0.9rem;
-        transition: background-color 0.2s;
-    }
-
-    .skip-button {
-        background: #ff9800;
-        color: white;
-    }
-
-    .skip-button:hover {
-        background: #f57c00;
-    }
-
-    .cancel-button {
-        background: #f44336;
-        color: white;
-    }
-
-    .cancel-button:hover {
-        background: #d32f2f;
-    }
-
-    .dark .skip-button {
-        background: #ff9800;
-    }
-
-    .dark .skip-button:hover {
-        background: #f57c00;
-    }
-
-    .dark .cancel-button {
-        background: #f44336;
-    }
-
-    .dark .cancel-button:hover {
-        background: #d32f2f;
-    }
-
-    .auto-execute-toggle {
-        margin-bottom: 1rem;
-        padding: 0.5rem;
-        background: #f5f5f5;
-        border-radius: 4px;
-    }
-
-    .dark .auto-execute-toggle {
-        background: #2a2a2a;
-    }
-
-    .auto-execute-toggle label {
-        display: flex;
+        flex-direction: column;
         align-items: center;
-        gap: 0.5rem;
+        text-align: center;
+        padding: 2rem 0;
+        margin-top: -1rem;
+    }
+
+    .success-message {
+        font-size: 16px;
+        line-height: 24px;
+        color: #64748B;
+        margin: 24px 0 32px;
+        font-weight: 400;
+    }
+
+    .success-message a {
+        color: #4F7FFF;
+        text-decoration: none;
+        font-weight: 500;
+    }
+
+    .success-message a:hover {
+        text-decoration: underline;
+    }
+
+    .social-links {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        width: 100%;
+        padding: 0 32px;
+        max-width: 280px;
+        margin: 0 auto;
+    }
+
+    .social-button {
+        width: 100%;
+        padding: 10px 16px;
+        border: 1px solid #E2E8F0;
+        border-radius: 100px;
+        background: white;
+        color: #334155;
+        font-size: 14px;
+        font-weight: 600;
         cursor: pointer;
-        font-size: 0.9rem;
-        color: #666;
+        transition: all 0.15s;
+        text-align: center;
+        min-width: 200px;
+        white-space: nowrap;
     }
 
-    .dark .auto-execute-toggle label {
-        color: #aaa;
+    .social-button:hover {
+        background: #F8FAFC;
+        border-color: #CBD5E1;
     }
 
-    .info-message {
-        color: #2196F3;
-        font-size: 0.9rem;
+    :global(.dark) .social-button {
+        background: #1F2937;
+        border-color: #374151;
+        color: #E5E7EB;
+    }
+
+    :global(.dark) .social-button:hover {
+        background: #374151;
+        border-color: #4B5563;
+    }
+
+    .modal-footer {
+        margin-top: 32px;
         text-align: center;
     }
 
-    .dark .info-message {
-        color: #64B5F6;
+    .help-text {
+        font-size: 14px;
+        color: #64748B;
+        font-weight: 400;
+    }
+
+    .chat-link {
+        background: none;
+        border: none;
+        color: #4F7FFF;
+        padding: 0;
+        font-size: inherit;
+        font-weight: 400;
+        cursor: pointer;
+    }
+
+    .chat-link:hover {
+        text-decoration: underline;
+    }
+
+    /* Dark theme */
+    .dark .modal-content {
+        background: #1F2937;
+    }
+
+    .dark h2 {
+        color: white;
+    }
+
+    .dark .subtitle,
+    .dark .help-text {
+        color: #9CA3AF;
+    }
+
+    .dark .transaction-row {
+        background: #374151;
+    }
+
+    .dark .tx-info {
+        color: white;
+    }
+
+    .dark .action-button.disabled {
+        background: rgba(79, 127, 255, 0.1);
+        color: #4F7FFF;
+    }
+
+    .dark .action-button.processing {
+        background: #4F7FFF;
+        color: white;
+    }
+
+    .dark .action-button.success {
+        background: #1F2937;
+        border-color: #374151;
+        color: #9CA3AF;
+    }
+
+    .dark .action-button.success:hover {
+        background: #374151;
+    }
+
+    .dark .close-button {
+        color: #9CA3AF;
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
     }
 </style> 
