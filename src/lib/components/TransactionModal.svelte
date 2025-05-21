@@ -16,15 +16,16 @@
     export let title = 'Borrow 1000 USDC';
     export let subtitle = 'Variable Rolling Rate';
     export let positionsUrl = '#';
-    export let socialLinks = {
-        x: 'https://x.com/your-handle',
-        warpcast: 'https://warpcast.com/your-handle',
-        telegram: 'https://t.me/your-channel'
-    };
+    export let socialLinks: Array<{label: string, url: string}> = [];
     export let blockExplorerUrl: string;
     export let supportChannelUrl = 'https://t.me/your-support';
     export let customTheme: Partial<ThemeConfig> = {};
     export let closeOnOverlayClick: boolean = false;
+    export let successMessage = 'Head to the Positions page to track and manage your new position.';
+    export let redirectMessage = 'Positions';
+    export let showHelpSection = true;
+    export let helpMessage = 'Need help or have feedback?';
+    export let helpRedirectText = 'Chat with someone';
 
     const dispatch = createEventDispatcher();
 
@@ -295,21 +296,27 @@
             {:else}
                 <div class="success-screen">
                     <p class="success-message">
-                        Head to the <a href={positionsUrl}>Positions</a> page to track and manage your new position.
+                        {@html successMessage.replace(redirectMessage, `<a href="${positionsUrl}">${redirectMessage}</a>`)}
                     </p>
-                    <div class="social-links">
-                        <button class="social-button" on:click={() => window.open(socialLinks.x, '_blank')}>Follow on X</button>
-                        <button class="social-button" on:click={() => window.open(socialLinks.warpcast, '_blank')}>Follow on Warpcast</button>
-                        <button class="social-button" on:click={() => window.open(socialLinks.telegram, '_blank')}>Follow on Telegram</button>
-                    </div>
+                    {#if socialLinks.length > 0}
+                        <div class="social-links">
+                            {#each socialLinks as {label, url}}
+                                <button class="social-button" on:click={() => window.open(url, '_blank')}>
+                                    {label}
+                                </button>
+                            {/each}
+                        </div>
+                    {/if}
                 </div>
             {/if}
         </div>
 
         <footer class="modal-footer">
-            <div class="help-text">
-                Need help or have feedback? <button class="chat-link" on:click={handleChat}>Chat with someone</button>.
-            </div>
+            {#if showHelpSection}
+                <div class="help-text">
+                    {helpMessage} <button class="chat-link" on:click={handleChat}>{helpRedirectText}</button>.
+                </div>
+            {/if}
         </footer>
     </div>
 </div>
@@ -494,16 +501,22 @@
         color: #64748B;
         margin: 24px 0 32px;
         font-weight: 400;
+        text-align: center;
     }
 
-    .success-message a {
-        color: #4F7FFF;
-        text-decoration: none;
-        font-weight: 500;
+    :global(.success-message a) {
+        color: var(--primary-color) !important;
+        text-decoration: none !important;
+        font-weight: 400 !important;
+        cursor: pointer;
+        background: none;
+        border: none;
+        padding: 0;
+        font-size: inherit;
     }
 
-    .success-message a:hover {
-        text-decoration: underline;
+    :global(.success-message a:hover) {
+        text-decoration: underline !important;
     }
 
     .social-links {

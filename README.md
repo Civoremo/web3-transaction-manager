@@ -44,21 +44,29 @@ npm install web3-transaction-manager
             }
         }
     ];
+
+    const socialLinks = [
+        { label: 'Follow on X', url: 'https://x.com/your-handle' },
+        { label: 'Join Telegram', url: 'https://t.me/your-channel' },
+        { label: 'Follow on Warpcast', url: 'https://warpcast.com/your-handle' },
+        { label: 'Join Discord', url: 'https://discord.gg/your-server' }
+    ];
 </script>
 
 <TransactionModal
     {isOpen}
     {transactions}
     {signer}
+    {socialLinks}
     blockExplorerUrl="https://etherscan.io/tx/"
     title="Borrow 1000 USDC"
     subtitle="Variable Rolling Rate"
     positionsUrl="/positions"
-    socialLinks={{
-        x: 'https://x.com/your-handle',
-        warpcast: 'https://warpcast.com/your-handle',
-        telegram: 'https://t.me/your-channel'
-    }}
+    successMessage="Your transaction has been processed successfully!"
+    redirectMessage="View your new position"
+    showHelpSection={true}
+    helpMessage="Need assistance?"
+    helpRedirectText="Contact our support team"
     supportChannelUrl="https://t.me/your-support"
     on:close={() => isOpen = false}
 />
@@ -84,19 +92,27 @@ npm install web3-transaction-manager
 | `title`             | `string`                      | `'Borrow 1000 USDC'` | Modal title.                                                |
 | `subtitle`          | `string`                      | `'Variable Rolling Rate'` | Modal subtitle.                                         |
 | `positionsUrl`      | `string`                      | `'#'`           | URL for the positions page.                                      |
-| `socialLinks`       | `object`                      | See example      | Social media URLs (x, warpcast, telegram).                       |
+| `socialLinks`       | `Array<{label: string, url: string}>` | `[]`    | Array of social links with custom labels and URLs.               |
+| `successMessage`    | `string`                      | `'Head to the Positions page to track and manage your new position.'` | The message shown after all transactions succeed. The text matching `redirectMessage` will be replaced with a clickable link using `positionsUrl`. |
+| `redirectMessage`   | `string`                      | `'Positions'`   | The text in `successMessage` that will be replaced with a link to `positionsUrl`. |
+| `showHelpSection`   | `boolean`                     | `true`         | Whether to show the help/feedback section.                       |
+| `helpMessage`       | `string`                      | `'Need help or have feedback?'` | Main help section message. |
+| `helpRedirectText`  | `string`                      | `'Chat with someone'` | Text for the clickable help link. |
 | `supportChannelUrl` | `string`                      | `'https://t.me/your-support'` | URL for support channel.                             |
 | `customTheme`       | `Partial<ThemeConfig>`        | `{}`            | Custom theme configuration object.                               |
 | `closeOnOverlayClick` | `boolean`                   | `false`         | Allow closing modal by clicking the overlay.                     |
 
-#### Example `socialLinks` object:
+#### Example `socialLinks` array:
 ```js
-{
-  x: 'https://x.com/your-handle',
-  warpcast: 'https://warpcast.com/your-handle',
-  telegram: 'https://t.me/your-channel'
-}
+const socialLinks = [
+    { label: 'Follow on X', url: 'https://x.com/your-handle' },
+    { label: 'Join Telegram', url: 'https://t.me/your-channel' },
+    { label: 'Follow on Warpcast', url: 'https://warpcast.com/your-handle' },
+    { label: 'Join Discord', url: 'https://discord.gg/your-server' }
+];
 ```
+
+You can add any number of social links with custom labels. The buttons will be styled consistently with your theme.
 
 ## Events
 

@@ -13,6 +13,16 @@
     let closeOnOverlayClick = false;
     let modalKey = 0;
     
+    const socialLinks = [
+        { label: 'Follow on X', url: 'https://x.com/your-handle' },
+        { label: 'Join Telegram', url: 'https://t.me/your-channel' },
+        { label: 'Follow on Warpcast', url: 'https://warpcast.com/your-handle' },
+        { label: 'Join Discord', url: 'https://discord.gg/your-server' }
+    ];
+
+    const successMessage = 'Head to the Positions page to track and manage your new position.';
+    const redirectMessage = 'Positions';
+    
     // Create a store for the theme
     const themeStore = writable<ThemeConfig>({
         light: { ...defaultTheme.light },
@@ -162,6 +172,9 @@
                 theme={currentTheme}
                 customTheme={$themeStore}
                 closeOnOverlayClick={closeOnOverlayClick}
+                {socialLinks}
+                {successMessage}
+                {redirectMessage}
                 on:close={() => { isOpen = false; resetTestFlow(); }}
                 on:success={handleSuccess}
                 on:error={handleError}
