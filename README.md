@@ -101,6 +101,7 @@ npm install web3-transaction-manager
 | `supportChannelUrl` | `string`                      | `'https://t.me/your-support'` | URL for support channel.                             |
 | `customTheme`       | `Partial<ThemeConfig>`        | `{}`            | Custom theme configuration object.                               |
 | `closeOnOverlayClick` | `boolean`                   | `false`         | Allow closing modal by clicking the overlay.                     |
+| `showFinalSuccessScreen` | `boolean` | `true` | Whether to show the final success screen with the redirect and social links. If false, a simple 'Successful' message appears at the bottom of the main screen. |
 
 #### Example `socialLinks` array:
 ```js

@@ -26,6 +26,7 @@
     export let showHelpSection = true;
     export let helpMessage = 'Need help or have feedback?';
     export let helpRedirectText = 'Chat with someone';
+    export let showFinalSuccessScreen: boolean = true;
 
     const dispatch = createEventDispatcher();
 
@@ -249,7 +250,7 @@
         </header>
 
         <div class="modal-body">
-            {#if !allTransactionsSuccessful}
+            {#if !allTransactionsSuccessful || !showFinalSuccessScreen}
                 <div class="transaction-list">
                     {#each transactions as transaction (transaction.id)}
                         <div class="transaction-row">
@@ -301,6 +302,9 @@
                         </div>
                     {/each}
                 </div>
+                {#if allTransactionsSuccessful && !showFinalSuccessScreen}
+                    <div class="success-at-bottom">Successful</div>
+                {/if}
             {:else}
                 <div class="success-screen">
                     <p class="success-message">
@@ -667,5 +671,13 @@
         width: 1em;
         height: 1em;
         stroke: currentColor;
+    }
+
+    .success-at-bottom {
+        color: var(--success-color);
+        font-size: 1.1rem;
+        font-weight: 600;
+        text-align: center;
+        margin-top: 1.5rem;
     }
 </style> 

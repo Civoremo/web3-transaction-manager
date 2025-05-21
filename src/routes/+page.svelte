@@ -12,6 +12,7 @@
     let currentTheme: 'light' | 'dark' = 'light';
     let closeOnOverlayClick = false;
     let modalKey = 0;
+    let showFinalSuccessScreen = true;
     
     const socialLinks = [
         { label: 'Follow on X', url: 'https://x.com/your-handle' },
@@ -163,6 +164,10 @@
                     <input type="checkbox" bind:checked={closeOnOverlayClick} />
                     Allow closing modal by clicking outside
                 </label>
+                <label class="toggle-label">
+                    <input type="checkbox" bind:checked={showFinalSuccessScreen} />
+                    Show final success screen
+                </label>
                 <button on:click={() => isOpen = true}>Open Transaction Flow</button>
             </div>
             {#key modalKey}
@@ -177,6 +182,7 @@
                 {successMessage}
                 {redirectMessage}
                 {redirectUrl}
+                showFinalSuccessScreen={showFinalSuccessScreen}
                 on:close={() => { isOpen = false; resetTestFlow(); }}
                 on:success={handleSuccess}
                 on:error={handleError}
