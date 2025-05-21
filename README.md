@@ -61,7 +61,7 @@ npm install web3-transaction-manager
     blockExplorerUrl="https://etherscan.io/tx/"
     title="Borrow 1000 USDC"
     subtitle="Variable Rolling Rate"
-    positionsUrl="/positions"
+    redirectUrl="/positions"
     successMessage="Your transaction has been processed successfully!"
     redirectMessage="View your new position"
     showHelpSection={true}
@@ -91,10 +91,10 @@ npm install web3-transaction-manager
 | `showSummary`       | `boolean`                     | `true`          | Show transaction summary after completion.                       |
 | `title`             | `string`                      | `'Borrow 1000 USDC'` | Modal title.                                                |
 | `subtitle`          | `string`                      | `'Variable Rolling Rate'` | Modal subtitle.                                         |
-| `positionsUrl`      | `string`                      | `'#'`           | URL for the positions page.                                      |
+| `redirectUrl`       | `string`                      | `'#'`           | The URL for the redirect link in the success message. |
 | `socialLinks`       | `Array<{label: string, url: string}>` | `[]`    | Array of social links with custom labels and URLs.               |
-| `successMessage`    | `string`                      | `'Head to the Positions page to track and manage your new position.'` | The message shown after all transactions succeed. The text matching `redirectMessage` will be replaced with a clickable link using `positionsUrl`. |
-| `redirectMessage`   | `string`                      | `'Positions'`   | The text in `successMessage` that will be replaced with a link to `positionsUrl`. |
+| `successMessage`    | `string`                      | `'Head to the Positions page to track and manage your new position.'` | The message shown after all transactions succeed. The text matching `redirectMessage` will be replaced with a clickable link using `redirectUrl`. |
+| `redirectMessage`   | `string`                      | `'Positions'`   | The text in `successMessage` that will be replaced with a link to `redirectUrl`. |
 | `showHelpSection`   | `boolean`                     | `true`         | Whether to show the help/feedback section.                       |
 | `helpMessage`       | `string`                      | `'Need help or have feedback?'` | Main help section message. |
 | `helpRedirectText`  | `string`                      | `'Chat with someone'` | Text for the clickable help link. |
@@ -329,8 +329,3 @@ npm run dev
 ```
 
 This will start a local development server and open the preview page at the root URL (http://localhost:5173 or similar). The preview page allows you to interactively test and customize the TransactionModal component and theme.
-
----
-
-For more details, see the `claude.md` or the preview page in the project.
-

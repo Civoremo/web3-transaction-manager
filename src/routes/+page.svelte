@@ -22,6 +22,7 @@
 
     const successMessage = 'Head to the Positions page to track and manage your new position.';
     const redirectMessage = 'Positions';
+    const redirectUrl = '/';
     
     // Create a store for the theme
     const themeStore = writable<ThemeConfig>({
@@ -175,6 +176,7 @@
                 {socialLinks}
                 {successMessage}
                 {redirectMessage}
+                {redirectUrl}
                 on:close={() => { isOpen = false; resetTestFlow(); }}
                 on:success={handleSuccess}
                 on:error={handleError}

@@ -15,7 +15,7 @@
     export let showSummary = true;
     export let title = 'Borrow 1000 USDC';
     export let subtitle = 'Variable Rolling Rate';
-    export let positionsUrl = '#';
+    export let redirectUrl = '#';
     export let socialLinks: Array<{label: string, url: string}> = [];
     export let blockExplorerUrl: string;
     export let supportChannelUrl = 'https://t.me/your-support';
@@ -87,6 +87,12 @@
         if (supportChannelUrl) {
             window.open(supportChannelUrl, '_blank');
         }
+    }
+
+    function handleRedirect(e: Event) {
+        e.preventDefault();
+        handleClose();
+        window.location.href = redirectUrl;
     }
 
     $: currentTransaction = transactions[currentIndex];
@@ -183,6 +189,8 @@
 
     $: allTransactionsSuccessful = transactions.length > 0 && 
         transactions.every(tx => states.get(tx.id)?.status === 'success');
+
+    $: messageParts = successMessage.split(redirectMessage);
 </script>
 
 {#if isOpen}
@@ -296,7 +304,7 @@
             {:else}
                 <div class="success-screen">
                     <p class="success-message">
-                        {@html successMessage.replace(redirectMessage, `<a href="${positionsUrl}">${redirectMessage}</a>`)}
+                        {messageParts[0]}<a href={redirectUrl} on:click={handleRedirect}>{redirectMessage}</a>{messageParts[1]}
                     </p>
                     {#if socialLinks.length > 0}
                         <div class="social-links">
