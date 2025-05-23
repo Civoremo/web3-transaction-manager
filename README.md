@@ -330,3 +330,27 @@ npm run dev
 ```
 
 This will start a local development server and open the preview page at the root URL (http://localhost:5173 or similar). The preview page allows you to interactively test and customize the TransactionModal component and theme.
+
+### Multicall Transactions
+
+If you want to batch multiple contract calls into a single transaction (multicall), you must encode the multicall before passing it to the transaction flow. The modal does not need to know it is a multicall; it simply sends the transaction as specified.
+
+**Example:**
+
+```js
+// Prepare individual calls
+const call1 = contract.interface.encodeFunctionData('doSomething', [arg1, arg2]);
+const call2 = contract.interface.encodeFunctionData('doAnotherThing', [arg3]);
+
+// Encode multicall
+const multicallData = contract.interface.encodeFunctionData('multicall', [[call1, call2]]);
+
+// Pass to the transaction flow
+{
+  to: contract.address,
+  data: multicallData,
+  value: 0
+}
+```
+
+The modal will submit this as a single transaction. The contract will execute all batched actions.

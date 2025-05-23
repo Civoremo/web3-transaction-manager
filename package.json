@@ -1,6 +1,6 @@
 {
 	"name": "web3-transaction-manager",
-	"version": "0.0.11",
+	"version": "0.0.12",
 	"description": "A Svelte package for managing sequential Web3 transactions with a user-friendly interface",
 	"author": "Civoremon",
 	"license": "MIT",
