@@ -1,7 +1,5 @@
 <script lang="ts">
     import type { Transaction, TransactionState } from '../types';
-    import ethers from 'ethers';
-    const { formatEther } = ethers;
 
     export let transactions: Transaction[] = [];
     export let states: Map<string, TransactionState>;
@@ -25,17 +23,6 @@
     $: totalGasUsed = completedTransactions.reduce((total, tx) => {
         const gasUsed = states.get(tx.id)?.gasUsed;
         return gasUsed ? total + BigInt(gasUsed.toString()) : total;
-    }, BigInt(0));
-
-    $: totalValue = transactions.reduce((total, tx) => {
-        const value = tx.params.value;
-        if (!value || value === '0') return total;
-        try {
-            return total + BigInt(value);
-        } catch (e) {
-            console.error('Invalid value for BigInt conversion:', value);
-            return total;
-        }
     }, BigInt(0));
 
     function getStatusIcon(status: string) {
@@ -79,13 +66,6 @@
             <span class="value">{pendingTransactions.length}</span>
         </div>
     </div>
-
-    {#if totalValue > 0}
-        <div class="detail-row">
-            <span class="label">Total Value</span>
-            <span class="value">{formatEther(totalValue)} ETH</span>
-        </div>
-    {/if}
 
     {#if totalGasUsed > 0}
         <div class="detail-row">

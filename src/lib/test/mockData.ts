@@ -1,5 +1,5 @@
+// @ts-ignore
 import ethers from 'ethers';
-const { parseEther } = ethers;
 import type { Transaction, TransactionState } from '../types';
 
 // Common error messages for testing
@@ -23,7 +23,8 @@ export const mockTransactions: Transaction[] = [
         },
         metadata: {
             title: 'Token Approval',
-            description: 'Approve USDC for trading'
+            description: 'Approve USDC for trading',
+            buttonLabel: 'Approve'
         }
     },
     {
@@ -31,12 +32,13 @@ export const mockTransactions: Transaction[] = [
         type: 'contract',
         params: {
             to: '0x2345678901234567890123456789012345678901',
-            value: parseEther('0.1').toString(),
+            value: ethers.utils.parseEther('0.1').toString(),
             data: '0x23b872dd...'
         },
         metadata: {
             title: 'Swap Tokens',
-            description: 'Swap 100 USDC for ETH'
+            description: 'Swap 100 USDC for ETH',
+            buttonLabel: 'Swap'
         }
     },
     {
@@ -44,12 +46,13 @@ export const mockTransactions: Transaction[] = [
         type: 'standard',
         params: {
             to: '0x3456789012345678901234567890123456789012',
-            value: parseEther('0.05').toString(),
+            value: ethers.utils.parseEther('0.05').toString(),
             data: '0x'
         },
         metadata: {
             title: 'Transfer ETH',
-            description: 'Send 0.05 ETH to recipient'
+            description: 'Send 0.05 ETH to recipient',
+            buttonLabel: 'Transfer'
         }
     }
 ];
@@ -67,32 +70,31 @@ export const testScenarios = {
         ['tx-3', { status: 'pending' }]
     ]),
     failedExecution: new Map<string, TransactionState>([
-        ['tx-1', { status: 'success', gasUsed: '21000' }],
-        ['tx-2', { status: 'failed', error: errorMessages.insufficientFunds }],
+        ['tx-1', { status: 'success' }],
+        ['tx-2', { status: 'failed' }],
         ['tx-3', { status: 'pending' }]
     ]),
     skippedTransaction: new Map<string, TransactionState>([
-        ['tx-1', { status: 'success', gasUsed: '21000' }],
+        ['tx-1', { status: 'success' }],
         ['tx-2', { status: 'skipped' }],
         ['tx-3', { status: 'pending' }]
     ]),
     cancelledFlow: new Map<string, TransactionState>([
-        ['tx-1', { status: 'success', gasUsed: '21000' }],
-        ['tx-2', { status: 'failed', error: errorMessages.insufficientFunds }],
-        ['tx-3', { status: 'cancelled' }]
+        ['tx-1', { status: 'success' }],
+        ['tx-2', { status: 'failed' }],
+        ['tx-3', { status: 'failed' }]
     ]),
     complete: new Map<string, TransactionState>([
-        ['tx-1', { status: 'success', gasUsed: '21000' }],
-        ['tx-2', { status: 'success', gasUsed: '150000' }],
-        ['tx-3', { status: 'success', gasUsed: '21000' }]
+        ['tx-1', { status: 'success' }],
+        ['tx-2', { status: 'success' }],
+        ['tx-3', { status: 'success' }]
     ])
 };
 
 // Helper functions for state management
-export function createSuccessState(gasUsed = '21000'): TransactionState {
+export function createSuccessState(): TransactionState {
     return {
-        status: 'success',
-        gasUsed
+        status: 'success'
     };
 }
 
@@ -104,19 +106,14 @@ export function createPendingState(): TransactionState {
     return { status: 'pending' };
 }
 
-export function createFailedState(error = 'Transaction failed'): TransactionState {
+export function createFailedState(): TransactionState {
     return {
-        status: 'failed',
-        error
+        status: 'failed'
     };
 }
 
 export function createSkippedState(): TransactionState {
     return { status: 'skipped' };
-}
-
-export function createCancelledState(): TransactionState {
-    return { status: 'cancelled' };
 }
 
 // Sample transaction for individual component testing

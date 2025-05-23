@@ -29,7 +29,11 @@ npm install web3-transaction-manager
     import { ethers } from 'ethers';
 
     let isOpen = false;
-    let signer = new ethers.Signer();
+    let signer;
+    if (window.ethereum) {
+        const provider = new ethers.providers.Web3Provider(window.ethereum);
+        signer = provider.getSigner();
+    }
     let transactions = [
         {
             id: 'approve',
@@ -79,7 +83,7 @@ npm install web3-transaction-manager
 | Prop               | Type                       | Description                                                      |
 |--------------------|----------------------------|------------------------------------------------------------------|
 | `transactions`     | `Transaction[]`            | Array of transaction objects to be executed in sequence.         |
-| `signer`           | `ethers.Signer`            | Ethers.js signer instance for transaction signing.               |
+| `signer`           | `ethers.Signer`            | Ethers.js signer instance for transaction signing. **You must pass a signer from your app frontend, e.g. `new ethers.providers.Web3Provider(window.ethereum).getSigner()`.** |
 | `blockExplorerUrl` | `string`                   | Base URL for the block explorer (e.g., 'https://etherscan.io/tx/'). |
 
 ### Optional Props
@@ -357,16 +361,14 @@ The modal will submit this as a single transaction. The contract will execute al
 
 ## Ethers Compatibility
 
-This library supports both ethers v5 (CommonJS) and v6 (ESM). You must have `ethers` installed in your project (it is a peer dependency).
+**This library supports only ethers v5.** You must have `ethers@^5.0.0` installed in your project (it is a peer dependency).
 
-- For ethers v5, use:
+- You must provide a signer from your app frontend. For example:
   ```js
-  import ethers from 'ethers';
-  const { formatEther } = ethers;
-  ```
-- For ethers v6, you can use:
-  ```js
-  import { formatEther } from 'ethers';
+  import { ethers } from 'ethers';
+  const provider = new ethers.providers.Web3Provider(window.ethereum);
+  const signer = provider.getSigner();
+  // Pass signer to TransactionModal
   ```
 
-Internally, the library uses the default import style for maximum compatibility. If you encounter import errors, check your ethers version and import style.
+If you use ethers v6, you will encounter import errors. The library uses the default import style internally for maximum compatibility with ethers v5.
