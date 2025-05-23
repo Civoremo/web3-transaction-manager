@@ -11,6 +11,7 @@
     export let isOpen = false;
     export let transactions: Transaction[] = [];
     export let signer: ethers.Signer;
+    export let address: string;
     export let theme: 'light' | 'dark' = 'light';
     export let title = 'Borrow 1000 USDC';
     export let subtitle = 'Variable Rolling Rate';
@@ -140,6 +141,14 @@
     async function executeTransaction(transaction: Transaction) {
         if (!signer) {
             const errorMsg = 'No signer provided. Please connect your wallet.';
+            console.error(errorMsg);
+            states.set(transaction.id, { status: 'failed', error: errorMsg });
+            states = new Map(states);
+            return;
+        }
+
+        if (!address) {
+            const errorMsg = 'No address provided. Please connect your wallet.';
             console.error(errorMsg);
             states.set(transaction.id, { status: 'failed', error: errorMsg });
             states = new Map(states);

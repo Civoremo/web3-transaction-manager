@@ -46,7 +46,8 @@ describe('TransactionModal', () => {
                 transactions: mockTransactions,
                 states: createStates(['pending', 'pending']),
                 currentIndex: 0,
-                theme: 'light'
+                theme: 'light',
+                address: '0x123'
             }
         });
 
@@ -60,7 +61,8 @@ describe('TransactionModal', () => {
                 transactions: mockTransactions,
                 states: createStates(['pending', 'pending']),
                 currentIndex: 0,
-                theme: 'light'
+                theme: 'light',
+                address: '0x123'
             }
         });
 
@@ -76,7 +78,8 @@ describe('TransactionModal', () => {
                 transactions: mockTransactions,
                 states: createStates(['pending', 'pending']),
                 currentIndex: 0,
-                theme: 'light'
+                theme: 'light',
+                address: '0x123'
             }
         });
 
@@ -93,7 +96,8 @@ describe('TransactionModal', () => {
                 transactions: mockTransactions,
                 states: createStates(['pending', 'pending']),
                 currentIndex: 0,
-                theme: 'light'
+                theme: 'light',
+                address: '0x123'
             }
         });
 
@@ -114,7 +118,8 @@ describe('TransactionModal', () => {
                 transactions: mockTransactions,
                 states: createStates(['failed', 'pending']),
                 currentIndex: 0,
-                theme: 'light'
+                theme: 'light',
+                address: '0x123'
             }
         });
 
@@ -134,7 +139,8 @@ describe('TransactionModal', () => {
                 transactions: mockTransactions,
                 states: createStates(['success', 'success']),
                 currentIndex: 2,
-                theme: 'light'
+                theme: 'light',
+                address: '0x123'
             }
         });
 
@@ -148,7 +154,8 @@ describe('TransactionModal', () => {
                 transactions: mockTransactions,
                 states: createStates(['failed', 'pending']),
                 currentIndex: 0,
-                theme: 'light'
+                theme: 'light',
+                address: '0x123'
             }
         });
 
@@ -162,7 +169,8 @@ describe('TransactionModal', () => {
                 transactions: mockTransactions,
                 states: createStates(['pending', 'pending']),
                 currentIndex: 0,
-                theme: 'dark'
+                theme: 'dark',
+                address: '0x123'
             }
         });
 

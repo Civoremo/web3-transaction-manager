@@ -27,59 +27,41 @@ npm install web3-transaction-manager
   import { TransactionModal } from 'web3-transaction-manager';
   import { ethers } from 'ethers';
 
-  // Get signer from your app's wallet connection
-  const provider = new ethers.providers.Web3Provider(window.ethereum);
-  const signer = provider.getSigner();
+  let isOpen = false;
+  let signer;
+  let address;
 
   const transactions = [
     {
       id: '1',
+      type: 'standard',
       params: {
-        to: '0x...',
-        data: '0x...',
-        value: '1000000000000000000' // 1 ETH in wei
+        to: '0x123...',
+        value: '1000000000000000000'
       },
       metadata: {
-        title: 'Approve USDC',
-        buttonLabel: 'Approve'
-      }
-    },
-    {
-      id: '2',
-      params: {
-        to: '0x...',
-        data: '0x...'
-      },
-      metadata: {
-        title: 'Borrow USDC',
-        buttonLabel: 'Borrow'
+        title: 'Send ETH',
+        description: 'Send 1 ETH'
       }
     }
   ];
 
   const socialLinks = [
-    { label: 'Join Discord', url: 'https://discord.gg/...' },
-    { label: 'Follow Twitter', url: 'https://twitter.com/...' }
+    { label: 'Twitter', url: 'https://twitter.com/your-handle' },
+    { label: 'Discord', url: 'https://discord.gg/your-server' }
   ];
 </script>
 
 <TransactionModal
+  {isOpen}
   {transactions}
   {signer}
-  blockExplorerUrl="https://etherscan.io/tx/"
+  {address}
   theme="light"
-  title="Borrow 1000 USDC"
-  subtitle="Variable Rolling Rate"
-  redirectUrl="/positions"
+  title="Send ETH"
+  subtitle="Transfer 1 ETH"
+  blockExplorerUrl="https://etherscan.io"
   {socialLinks}
-  supportChannelUrl="https://t.me/your-support"
-  closeOnOverlayClick={true}
-  successMessage="Head to the Positions page to track and manage your new position."
-  redirectMessage="Positions"
-  showHelpSection={true}
-  helpMessage="Need help or have feedback?"
-  helpRedirectText="Chat with someone"
-  showFinalSuccessScreen={true}
 />
 ```
 
@@ -91,6 +73,7 @@ npm install web3-transaction-manager
 |------|------|-------------|
 | `transactions` | `Transaction[]` | Array of transactions to execute |
 | `signer` | `ethers.Signer` | Ethers signer instance |
+| `address` | `string` | The connected wallet address |
 | `blockExplorerUrl` | `string` | Base URL for block explorer (e.g., "https://etherscan.io/tx/") |
 
 ### Optional Props

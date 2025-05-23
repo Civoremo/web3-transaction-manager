@@ -1,4 +1,6 @@
 import type { BigNumberish } from 'ethers';
+import * as ethers from 'ethers';
+import type { ThemeConfig } from './theme';
 
 /**
  * Transaction types for different kinds of blockchain transactions
@@ -51,4 +53,26 @@ export type TransactionEvent =
     | 'transactionStart'
     | 'transactionSuccess'
     | 'transactionError'
-    | 'allComplete'; 
+    | 'allComplete';
+
+export interface TransactionModalProps {
+    isOpen: boolean;
+    transactions: Transaction[];
+    signer: ethers.Signer;
+    address: string;
+    theme?: 'light' | 'dark';
+    title?: string;
+    subtitle?: string;
+    redirectUrl?: string;
+    socialLinks?: Array<{label: string, url: string}>;
+    blockExplorerUrl: string;
+    supportChannelUrl?: string;
+    customTheme?: Partial<ThemeConfig>;
+    closeOnOverlayClick?: boolean;
+    successMessage?: string;
+    redirectMessage?: string;
+    showHelpSection?: boolean;
+    helpMessage?: string;
+    helpRedirectText?: string;
+    showFinalSuccessScreen?: boolean;
+} 
