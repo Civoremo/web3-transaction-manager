@@ -35,6 +35,7 @@
     let processingStartTime = new Map<string, number>();
     let processingDuration = new Map<string, number>();
     let durationInterval: number;
+    let isInitialized = false;
 
     // Merge custom theme with default theme
     $: themeConfig = {
@@ -42,9 +43,19 @@
         dark: { ...defaultTheme.dark, ...customTheme.dark }
     };
 
-    onMount(() => {
+    // Initialize component when signer and address are available
+    $: if (signer && address && !isInitialized) {
         states = new Map(transactions.map(tx => [tx.id, { status: 'pending' }]));
         currentIndex = 0;
+        isInitialized = true;
+    }
+
+    onMount(() => {
+        if (signer && address) {
+            states = new Map(transactions.map(tx => [tx.id, { status: 'pending' }]));
+            currentIndex = 0;
+            isInitialized = true;
+        }
         return () => {
             if (durationInterval) clearInterval(durationInterval);
         };
@@ -102,7 +113,7 @@
     $: hasPending = transactions.some(tx => states.get(tx.id)?.status === 'pending');
 
     // Start/stop intervals based on modal visibility
-    $: if (isOpen) {
+    $: if (isOpen && isInitialized) {
         durationInterval = setInterval(updateDurations, 1000);
     } else {
         if (durationInterval) clearInterval(durationInterval);
@@ -194,7 +205,7 @@
     $: messageParts = successMessage.split(redirectMessage);
 </script>
 
-{#if isOpen}
+{#if isOpen && isInitialized}
 <button 
     class="modal-overlay"
     class:dark={theme === 'dark'}
