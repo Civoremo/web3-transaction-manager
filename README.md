@@ -1,19 +1,18 @@
 # Web3 Transaction Manager
 
-A Svelte component library for managing multi-step blockchain transactions with a beautiful, user-friendly interface.
+A Svelte package for managing sequential Web3 transactions with a user-friendly interface.
 
 ## Features
 
-- 🎯 Multi-step transaction management
-- 🎨 Modern, clean UI with dark mode support
-- 🔄 Automatic transaction state tracking
-- 🔗 Block explorer integration
-- 🚀 Retry functionality for failed transactions
-- 📱 Responsive design
-- 🎭 Customizable themes and styling
-
-## Preview Page
-[Preview](https://web3-transaction-manager.netlify.app/)
+- Sequential transaction execution
+- Real-time transaction status tracking
+- Customizable UI themes (light/dark)
+- Support for multiple transactions
+- Success/failure handling
+- Customizable social links
+- Help/feedback section
+- Block explorer integration
+- Responsive design
 
 ## Installation
 
@@ -25,54 +24,62 @@ npm install web3-transaction-manager
 
 ```svelte
 <script>
-    import { TransactionModal } from 'web3-transaction-manager';
-    import { ethers } from 'ethers';
+  import { TransactionModal } from 'web3-transaction-manager';
+  import { ethers } from 'ethers';
 
-    let isOpen = false;
-    let signer;
-    if (window.ethereum) {
-        const provider = new ethers.providers.Web3Provider(window.ethereum);
-        signer = provider.getSigner();
+  // Get signer from your app's wallet connection
+  const provider = new ethers.providers.Web3Provider(window.ethereum);
+  const signer = provider.getSigner();
+
+  const transactions = [
+    {
+      id: '1',
+      params: {
+        to: '0x...',
+        data: '0x...',
+        value: '1000000000000000000' // 1 ETH in wei
+      },
+      metadata: {
+        title: 'Approve USDC',
+        buttonLabel: 'Approve'
+      }
+    },
+    {
+      id: '2',
+      params: {
+        to: '0x...',
+        data: '0x...'
+      },
+      metadata: {
+        title: 'Borrow USDC',
+        buttonLabel: 'Borrow'
+      }
     }
-    let transactions = [
-        {
-            id: 'approve',
-            type: 'approval',
-            params: {
-                to: '0x...',
-                data: '0x...'
-            },
-            metadata: {
-                title: 'Approve USDC',
-                buttonLabel: 'Approve'
-            }
-        }
-    ];
+  ];
 
-    const socialLinks = [
-        { label: 'Follow on X', url: 'https://x.com/your-handle' },
-        { label: 'Join Telegram', url: 'https://t.me/your-channel' },
-        { label: 'Follow on Warpcast', url: 'https://warpcast.com/your-handle' },
-        { label: 'Join Discord', url: 'https://discord.gg/your-server' }
-    ];
+  const socialLinks = [
+    { label: 'Join Discord', url: 'https://discord.gg/...' },
+    { label: 'Follow Twitter', url: 'https://twitter.com/...' }
+  ];
 </script>
 
 <TransactionModal
-    {isOpen}
-    {transactions}
-    {signer}
-    {socialLinks}
-    blockExplorerUrl="https://etherscan.io/tx/"
-    title="Borrow 1000 USDC"
-    subtitle="Variable Rolling Rate"
-    redirectUrl="/positions"
-    successMessage="Your transaction has been processed successfully!"
-    redirectMessage="View your new position"
-    showHelpSection={true}
-    helpMessage="Need assistance?"
-    helpRedirectText="Contact our support team"
-    supportChannelUrl="https://t.me/your-support"
-    on:close={() => isOpen = false}
+  {transactions}
+  {signer}
+  blockExplorerUrl="https://etherscan.io/tx/"
+  theme="light"
+  title="Borrow 1000 USDC"
+  subtitle="Variable Rolling Rate"
+  redirectUrl="/positions"
+  {socialLinks}
+  supportChannelUrl="https://t.me/your-support"
+  closeOnOverlayClick={true}
+  successMessage="Head to the Positions page to track and manage your new position."
+  redirectMessage="Positions"
+  showHelpSection={true}
+  helpMessage="Need help or have feedback?"
+  helpRedirectText="Chat with someone"
+  showFinalSuccessScreen={true}
 />
 ```
 
@@ -80,249 +87,114 @@ npm install web3-transaction-manager
 
 ### Required Props
 
-| Prop               | Type                       | Description                                                      |
-|--------------------|----------------------------|------------------------------------------------------------------|
-| `transactions`     | `Transaction[]`            | Array of transaction objects to be executed in sequence.         |
-| `signer`           | `ethers.Signer`            | Ethers.js signer instance for transaction signing. **You must pass a signer from your app frontend, e.g. `new ethers.providers.Web3Provider(window.ethereum).getSigner()`.** |
-| `blockExplorerUrl` | `string`                   | Base URL for the block explorer (e.g., 'https://etherscan.io/tx/'). |
+| Prop | Type | Description |
+|------|------|-------------|
+| `transactions` | `Transaction[]` | Array of transactions to execute |
+| `signer` | `ethers.Signer` | Ethers signer instance |
+| `blockExplorerUrl` | `string` | Base URL for block explorer (e.g., "https://etherscan.io/tx/") |
 
 ### Optional Props
 
-| Prop                | Type                          | Default         | Description                                                      |
-|---------------------|-------------------------------|-----------------|------------------------------------------------------------------|
-| `isOpen`            | `boolean`                     | `false`         | Controls modal visibility.                                       |
-| `theme`             | `'light' \| 'dark'`           | `'light'`       | Sets the modal theme.                                            |
-| `showSummary`       | `boolean`                     | `true`          | Show transaction summary after completion.                       |
-| `title`             | `string`                      | `'Borrow 1000 USDC'` | Modal title.                                                |
-| `subtitle`          | `string`                      | `'Variable Rolling Rate'` | Modal subtitle.                                         |
-| `redirectUrl`       | `string`                      | `'#'`           | The URL for the redirect link in the success message. |
-| `socialLinks`       | `Array<{label: string, url: string}>` | `[]`    | Array of social links with custom labels and URLs.               |
-| `successMessage`    | `string`                      | `'Head to the Positions page to track and manage your new position.'` | The message shown after all transactions succeed. The text matching `redirectMessage` will be replaced with a clickable link using `redirectUrl`. |
-| `redirectMessage`   | `string`                      | `'Positions'`   | The text in `successMessage` that will be replaced with a link to `redirectUrl`. |
-| `showHelpSection`   | `boolean`                     | `true`         | Whether to show the help/feedback section.                       |
-| `helpMessage`       | `string`                      | `'Need help or have feedback?'` | Main help section message. |
-| `helpRedirectText`  | `string`                      | `'Chat with someone'` | Text for the clickable help link. |
-| `supportChannelUrl` | `string`                      | `'https://t.me/your-support'` | URL for support channel.                             |
-| `customTheme`       | `Partial<ThemeConfig>`        | `{}`            | Custom theme configuration object.                               |
-| `closeOnOverlayClick` | `boolean`                   | `false`         | Allow closing modal by clicking the overlay.                     |
-| `showFinalSuccessScreen` | `boolean` | `true` | Whether to show the final success screen with the redirect and social links. If false, a simple 'Successful' message appears at the bottom of the main screen. |
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `isOpen` | `boolean` | `false` | Controls modal visibility |
+| `theme` | `'light' \| 'dark'` | `'light'` | UI theme |
+| `title` | `string` | `'Borrow 1000 USDC'` | Modal title |
+| `subtitle` | `string` | `'Variable Rolling Rate'` | Modal subtitle |
+| `redirectUrl` | `string` | `'#'` | URL to redirect after success |
+| `socialLinks` | `Array<{label: string, url: string}>` | `[]` | Social media links to display |
+| `supportChannelUrl` | `string` | `'https://t.me/your-support'` | Support channel URL |
+| `customTheme` | `Partial<ThemeConfig>` | `{}` | Custom theme configuration |
+| `closeOnOverlayClick` | `boolean` | `false` | Whether clicking overlay closes modal |
+| `successMessage` | `string` | `'Head to the Positions page...'` | Success screen message |
+| `redirectMessage` | `string` | `'Positions'` | Text for redirect link |
+| `showHelpSection` | `boolean` | `true` | Show help/feedback section |
+| `helpMessage` | `string` | `'Need help or have feedback?'` | Help section message |
+| `helpRedirectText` | `string` | `'Chat with someone'` | Help section link text |
+| `showFinalSuccessScreen` | `boolean` | `true` | Show success screen after completion |
 
-#### Example `socialLinks` array:
-```js
-const socialLinks = [
-    { label: 'Follow on X', url: 'https://x.com/your-handle' },
-    { label: 'Join Telegram', url: 'https://t.me/your-channel' },
-    { label: 'Follow on Warpcast', url: 'https://warpcast.com/your-handle' },
-    { label: 'Join Discord', url: 'https://discord.gg/your-server' }
-];
-```
+## Theme Configuration
 
-You can add any number of social links with custom labels. The buttons will be styled consistently with your theme.
-
-## Events
-
-- `close`: Dispatched when the modal is closed
-- `execute`: Dispatched when a transaction is executed
-- `skip`: Dispatched when a transaction is skipped
-- `cancel`: Dispatched when the transaction flow is cancelled
-
-## Types
+The component supports both light and dark themes, with customizable colors:
 
 ```typescript
-interface Transaction {
-    id: string;
-    type: TransactionType;
-    params: {
-        to: string;
-        data: string;
-        value?: string;
-    };
-    metadata: {
-        title: string;
-        buttonLabel: string;
-    };
+interface ThemeConfig {
+  light: ThemeColors;
+  dark: ThemeColors;
 }
 
-/**
- * Transaction types for different kinds of blockchain transactions
- * - 'approval': Token approval transactions (e.g., approving USDC for a protocol)
- * - 'contract': Smart contract interaction transactions (e.g., calling contract functions)
- * - 'standard': Standard ETH transfers or simple transactions
- */
-type TransactionType = 'approval' | 'contract' | 'standard';
-type TransactionStatus = 'pending' | 'processing' | 'success' | 'failed';
+interface ThemeColors {
+  primary: string;
+  success: string;
+  error: string;
+  text: string;
+  background: string;
+  border: string;
+  disabled: string;
+  hover: string;
+  card: string;
+  buttonPrimary: string;
+  buttonPrimaryText: string;
+  buttonDisabled: string;
+  buttonDisabledText: string;
+  buttonError: string;
+  buttonErrorText: string;
+  buttonSuccess: string;
+  buttonSuccessText: string;
+  buttonProcessing: string;
+  buttonProcessingText: string;
+  buttonHover: string;
+}
 ```
 
-## Styling
+Example theme customization:
 
-The components use a clean, modern design with support for both light and dark themes. The styling is scoped to each component and uses CSS custom properties for easy theming.
+```svelte
+<TransactionModal
+  customTheme={{
+    light: {
+      primary: '#4F7FFF',
+      success: '#10B981',
+      error: '#DC2626',
+      text: '#111827',
+      background: '#FFFFFF',
+      border: '#E5E7EB',
+      disabled: '#9CA3AF',
+      hover: '#3B82F6',
+      card: '#F7F7FA',
+      buttonPrimary: '#4F7FFF',
+      buttonPrimaryText: '#FFFFFF',
+      buttonDisabled: 'rgba(79,127,255,0.1)',
+      buttonDisabledText: '#4F7FFF',
+      buttonError: '#DC2626',
+      buttonErrorText: '#FFFFFF',
+      buttonSuccess: '#FFFFFF',
+      buttonSuccessText: '#64748B',
+      buttonProcessing: '#4F7FFF',
+      buttonProcessingText: '#FFFFFF',
+      buttonHover: '#3B82F6'
+    },
+    dark: {
+      // Dark theme colors...
+    }
+  }}
+/>
+```
 
-### Colors
+## Ethers Compatibility
 
-- Primary: #4F7FFF
-- Success: #10B981
-- Error: #DC2626
-- Text: #111827 (light) / #FFFFFF (dark)
-- Background: #FFFFFF (light) / #1F2937 (dark)
-- Border: #E5E7EB (light) / #374151 (dark)
-- Disabled: #9CA3AF
-- Hover: #3B82F6
-- Card: #F7F7FA (light) / #374151 (dark)
-- Button Primary: #4F7FFF
-- Button Primary Text: #FFFFFF
-- Button Disabled: rgba(79,127,255,0.1)
-- Button Disabled Text: #4F7FFF
-- Button Error: #DC2626
-- Button Error Text: #FFFFFF
-- Button Success: #FFFFFF (light) / #1F2937 (dark)
-- Button Success Text: #64748B (light) / #9CA3AF (dark)
-- Button Processing: #4F7FFF
-- Button Processing Text: #FFFFFF
-- Button Hover: #3B66E5
+This package is compatible with ethers v5.x. Make sure to use ethers v5 in your project:
 
-### Typography
-
-- Font Family: System UI
-- Headings: 24px, 600 weight
-- Body: 16px, 400 weight
-- Buttons: 14px, 500 weight
-
-## Best Practices
-
-1. Always provide a `blockExplorerUrl` appropriate for the chain being used
-2. Handle transaction errors gracefully
-3. Provide clear feedback for transaction states
-4. Use appropriate social media and support channel URLs
-5. Consider implementing retry logic for failed transactions
-6. Test thoroughly on different networks and with different transaction types
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Submit a pull request
+```bash
+npm install ethers@5.7.2
+```
 
 ## License
 
 MIT
 
-## Theme Customization
-
-You can fully customize the appearance of the TransactionModal and related components by passing a `customTheme` prop. This prop accepts a `ThemeConfig` object with separate color sets for `light` and `dark` themes.
-
-### Available Theme Parameters
-
-Each theme (light/dark) supports the following fields:
-
-```typescript
-interface ThemeColors {
-    primary: string;
-    success: string;
-    error: string;
-    text: string;
-    background: string;
-    border: string;
-    disabled: string;
-    hover: string;
-    card?: string; // Action container background
-    // Button colors
-    buttonPrimary?: string;
-    buttonPrimaryText?: string;
-    buttonDisabled?: string;
-    buttonDisabledText?: string;
-    buttonError?: string;
-    buttonErrorText?: string;
-    buttonSuccess?: string;
-    buttonSuccessText?: string;
-    buttonProcessing?: string;
-    buttonProcessingText?: string;
-    buttonHover?: string;
-}
-
-interface ThemeConfig {
-    light: ThemeColors;
-    dark: ThemeColors;
-}
-```
-
-### Example
-
-```typescript
-const customTheme = {
-    light: {
-        primary: '#4F7FFF',
-        success: '#10B981',
-        error: '#DC2626',
-        text: '#111827',
-        background: '#FFFFFF',
-        border: '#E5E7EB',
-        disabled: '#9CA3AF',
-        hover: '#3B82F6',
-        card: '#F7F7FA',
-        buttonPrimary: '#4F7FFF',
-        buttonPrimaryText: '#FFFFFF',
-        buttonDisabled: 'rgba(79,127,255,0.1)',
-        buttonDisabledText: '#4F7FFF',
-        buttonError: '#DC2626',
-        buttonErrorText: '#FFFFFF',
-        buttonSuccess: '#FFFFFF',
-        buttonSuccessText: '#64748B',
-        buttonProcessing: '#4F7FFF',
-        buttonProcessingText: '#FFFFFF',
-        buttonHover: '#3B66E5',
-    },
-    dark: {
-        primary: '#4F7FFF',
-        success: '#10B981',
-        error: '#DC2626',
-        text: '#FFFFFF',
-        background: '#1F2937',
-        border: '#374151',
-        disabled: '#9CA3AF',
-        hover: '#3B82F6',
-        card: '#374151',
-        buttonPrimary: '#4F7FFF',
-        buttonPrimaryText: '#FFFFFF',
-        buttonDisabled: 'rgba(79,127,255,0.1)',
-        buttonDisabledText: '#4F7FFF',
-        buttonError: '#DC2626',
-        buttonErrorText: '#FFFFFF',
-        buttonSuccess: '#1F2937',
-        buttonSuccessText: '#9CA3AF',
-        buttonProcessing: '#4F7FFF',
-        buttonProcessingText: '#FFFFFF',
-        buttonHover: '#3B66E5',
-    }
-};
-```
-
-You can pass this object to the `customTheme` prop of `TransactionModal`:
-
-```svelte
-<TransactionModal
-    customTheme={customTheme}
-    ...
-/>
-```
-
-All color fields are optional; any omitted field will fall back to the default theme value.
-
-## Svelte 4 Compatibility
-- **Svelte:** ^4.2.7
-- **@sveltejs/kit:** 1.24.0
-- **@sveltejs/vite-plugin-svelte:** 2.4.5
-- **@sveltejs/adapter-auto:** 1.0.0
-- **vite:** ^4.0.0
-
-> **Migration Note:** If you are upgrading from Svelte 5, update your dependencies as above and run `npm install --legacy-peer-deps`. Remove any Svelte 5-specific syntax or APIs from your codebase.
-
-## TransactionModal Theme Customization & Live Preview
-- **Live Theme Editing:** Easily customize modal and button colors using the built-in color pickers or hex/RGBA fields.
-- **Accurate Modal Preview:** The preview modal on the test page now matches the actual modal in width (480px), layout, and spinner appearance.
-- **No Squishing:** The preview modal is always centered and never squished, regardless of screen size.
-- **Instant Feedback:** Theme changes are reflected live in the preview modal, so you can see exactly how your custom theme will look.
-- **Improved Color Picker:** Large, user-friendly color swatches and support for both hex and RGBA values.
+## Preview Page
+[Preview](https://web3-transaction-manager.netlify.app/)
 
 ## Running Locally
 
@@ -358,17 +230,3 @@ const multicallData = contract.interface.encodeFunctionData('multicall', [[call1
 ```
 
 The modal will submit this as a single transaction. The contract will execute all batched actions.
-
-## Ethers Compatibility
-
-**This library supports only ethers v5.** You must have `ethers@^5.0.0` installed in your project (it is a peer dependency).
-
-- You must provide a signer from your app frontend. For example:
-  ```js
-  import { ethers } from 'ethers';
-  const provider = new ethers.providers.Web3Provider(window.ethereum);
-  const signer = provider.getSigner();
-  // Pass signer to TransactionModal
-  ```
-
-If you use ethers v6, you will encounter import errors. The library uses the default import style internally for maximum compatibility with ethers v5.

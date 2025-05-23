@@ -12,7 +12,6 @@
     export let transactions: Transaction[] = [];
     export let signer: ethers.Signer;
     export let theme: 'light' | 'dark' = 'light';
-    export let showSummary = true;
     export let title = 'Borrow 1000 USDC';
     export let subtitle = 'Variable Rolling Rate';
     export let redirectUrl = '#';
@@ -195,43 +194,18 @@
 </script>
 
 {#if isOpen}
-<div 
+<button 
     class="modal-overlay"
     class:dark={theme === 'dark'}
     on:click={closeOnOverlayClick ? handleClose : undefined}
     on:keydown={e => e.key === 'Escape' && handleClose()}
-    role="dialog"
-    aria-modal="true"
-    aria-labelledby="modal-title"
-    tabindex="-1"
-    style="
-        --primary-color: {themeConfig[theme].primary};
-        --success-color: {themeConfig[theme].success};
-        --error-color: {themeConfig[theme].error};
-        --text-color: {themeConfig[theme].text};
-        --background-color: {themeConfig[theme].background};
-        --border-color: {themeConfig[theme].border};
-        --disabled-color: {themeConfig[theme].disabled};
-        --hover-color: {themeConfig[theme].hover};
-        --card-color: {themeConfig[theme].card || (theme === 'dark' ? '#374151' : '#F7F7FA')};
-        --button-primary: {themeConfig[theme].buttonPrimary || themeConfig[theme].primary};
-        --button-primary-text: {themeConfig[theme].buttonPrimaryText || '#fff'};
-        --button-disabled: {themeConfig[theme].buttonDisabled || 'rgba(79,127,255,0.1)'};
-        --button-disabled-text: {themeConfig[theme].buttonDisabledText || themeConfig[theme].primary};
-        --button-error: {themeConfig[theme].buttonError || themeConfig[theme].error};
-        --button-error-text: {themeConfig[theme].buttonErrorText || '#fff'};
-        --button-success: {themeConfig[theme].buttonSuccess || '#fff'};
-        --button-success-text: {themeConfig[theme].buttonSuccessText || '#64748B'};
-        --button-processing: {themeConfig[theme].buttonProcessing || themeConfig[theme].primary};
-        --button-processing-text: {themeConfig[theme].buttonProcessingText || '#fff'};
-        --button-hover: {themeConfig[theme].buttonHover || themeConfig[theme].hover};
-    "
+    type="button"
+    aria-label="Close modal"
 >
     <div 
         class="modal-content"
-        on:click|stopPropagation
-        on:keydown|stopPropagation
-        role="document"
+        role="dialog"
+        aria-modal="true"
     >
         <header class="modal-header">
             <div class="title-section">
@@ -331,7 +305,7 @@
             {/if}
         </footer>
     </div>
-</div>
+</button>
 {/if}
 
 <style>
@@ -477,10 +451,6 @@
         background: #B91C1C;
     }
 
-    .error-icon {
-        font-size: 1rem;
-    }
-
     .spinner {
         width: 16px;
         height: 16px;
@@ -491,11 +461,6 @@
         animation: spin 1s linear infinite;
         display: inline-block;
         vertical-align: middle;
-    }
-
-    .link-icon {
-        font-size: 1rem;
-        margin-left: 0.25rem;
     }
 
     .success-screen {

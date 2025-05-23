@@ -9,7 +9,13 @@ const config = {
 
 	kit: {
 		// Use adapter-static for static site generation (Netlify, etc.)
-		adapter: adapter()
+		adapter: adapter(),
+		alias: {
+			$lib: './src/lib'
+		}
+	},
+	vitePlugin: {
+		inspector: true
 	}
 };
 
