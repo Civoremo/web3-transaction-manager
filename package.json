@@ -1,6 +1,6 @@
 {
 	"name": "web3-transaction-manager",
-	"version": "0.0.16",
+	"version": "0.0.17",
 	"description": "A Svelte package for managing sequential Web3 transactions with a user-friendly interface",
 	"author": "Civoremon",
 	"license": "MIT",
@@ -48,7 +48,7 @@
 	"devDependencies": {
 		"@sveltejs/adapter-auto": "1.0.0",
 		"@sveltejs/adapter-static": "^1.0.0",
-		"@sveltejs/kit": "^1.24.0",
+		"@sveltejs/kit": "^2.0.0",
 		"@sveltejs/vite-plugin-svelte": "2.4.5",
 		"@testing-library/jest-dom": "^6.4.2",
 		"@testing-library/svelte": "^5.2.7",
@@ -68,7 +68,7 @@
 		"ethers": "^5.7.2"
 	},
 	"peerDependencies": {
-		"@sveltejs/kit": ">=1.0.0 <2.0.0",
+		"@sveltejs/kit": ">=1.0.0 <3.0.0",
 		"svelte": "^4.2.7"
 	},
 	"repository": {
