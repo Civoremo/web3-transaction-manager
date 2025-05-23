@@ -139,16 +139,8 @@
     }
 
     async function executeTransaction(transaction: Transaction) {
-        if (!signer) {
-            const errorMsg = 'No signer provided. Please connect your wallet.';
-            console.error(errorMsg);
-            states.set(transaction.id, { status: 'failed', error: errorMsg });
-            states = new Map(states);
-            return;
-        }
-
-        if (!address) {
-            const errorMsg = 'No address provided. Please connect your wallet.';
+        if (!signer || !address) {
+            const errorMsg = 'Transaction modal not properly initialized. Please ensure wallet is connected.';
             console.error(errorMsg);
             states.set(transaction.id, { status: 'failed', error: errorMsg });
             states = new Map(states);
