@@ -1,4 +1,5 @@
-import { parseEther } from 'ethers';
+import ethers from 'ethers';
+const { parseEther } = ethers;
 import type { Transaction, TransactionState } from '../types';
 
 // Common error messages for testing

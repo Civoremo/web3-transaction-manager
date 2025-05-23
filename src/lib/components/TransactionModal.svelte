@@ -1,7 +1,7 @@
 <script lang="ts">
     import { createEventDispatcher, onMount } from 'svelte';
     import type { Transaction, TransactionType, TransactionStatus, TransactionState } from '../types';
-    import { ethers } from 'ethers';
+    import ethers from 'ethers';
     import type { ThemeConfig } from '$lib/types/theme';
     import { defaultTheme } from '$lib/types/theme';
     import ProgressTracker from './ProgressTracker.svelte';

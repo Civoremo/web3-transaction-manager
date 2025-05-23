@@ -354,3 +354,19 @@ const multicallData = contract.interface.encodeFunctionData('multicall', [[call1
 ```
 
 The modal will submit this as a single transaction. The contract will execute all batched actions.
+
+## Ethers Compatibility
+
+This library supports both ethers v5 (CommonJS) and v6 (ESM). You must have `ethers` installed in your project (it is a peer dependency).
+
+- For ethers v5, use:
+  ```js
+  import ethers from 'ethers';
+  const { formatEther } = ethers;
+  ```
+- For ethers v6, you can use:
+  ```js
+  import { formatEther } from 'ethers';
+  ```
+
+Internally, the library uses the default import style for maximum compatibility. If you encounter import errors, check your ethers version and import style.

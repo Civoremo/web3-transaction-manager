@@ -1,6 +1,7 @@
 <script lang="ts">
     import type { Transaction, TransactionState } from '../types';
-    import { formatEther } from 'ethers';
+    import ethers from 'ethers';
+    const { formatEther } = ethers;
 
     export let transactions: Transaction[] = [];
     export let states: Map<string, TransactionState>;
