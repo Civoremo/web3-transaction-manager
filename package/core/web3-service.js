@@ -1,16 +1,12 @@
 import * as ethers from 'ethers';
-import type { Transaction, TransactionState } from '../types';
-
 export class Web3Service {
-    private signer: ethers.JsonRpcSigner;
-    private provider: ethers.Provider;
-
-    constructor(signer: ethers.JsonRpcSigner) {
+    signer;
+    provider;
+    constructor(signer) {
         this.signer = signer;
-        this.provider = signer.provider!;
+        this.provider = signer.provider;
     }
-
-    async sendTransaction(tx: Transaction): Promise<ethers.TransactionResponse> {
+    async sendTransaction(tx) {
         const txParams = {
             to: tx.params.to,
             data: tx.params.data || '0x',
@@ -20,8 +16,7 @@ export class Web3Service {
         };
         return await this.signer.sendTransaction(txParams);
     }
-
-    async estimateGas(tx: Transaction): Promise<ethers.BigNumberish> {
+    async estimateGas(tx) {
         const txParams = {
             to: tx.params.to,
             data: tx.params.data || '0x',
@@ -29,8 +24,7 @@ export class Web3Service {
         };
         return await this.provider.estimateGas(txParams);
     }
-
-    async waitForTransaction(txHash: string, confirmations: number = 1): Promise<TransactionState> {
+    async waitForTransaction(txHash, confirmations = 1) {
         try {
             const receipt = await this.provider.waitForTransaction(txHash, confirmations);
             if (!receipt) {
@@ -42,7 +36,8 @@ export class Web3Service {
                 gasUsed: receipt.gasUsed,
                 blockNumber: receipt.blockNumber
             };
-        } catch (error) {
+        }
+        catch (error) {
             return {
                 status: 'failed',
                 hash: txHash,
@@ -50,11 +45,8 @@ export class Web3Service {
             };
         }
     }
-
-    async getChainId(): Promise<number> {
+    async getChainId() {
         const network = await this.provider.getNetwork();
         return Number(network.chainId);
     }
-
-    // The switchNetwork method should be handled by the app, not the library, since it requires window.ethereum
-} 
+}

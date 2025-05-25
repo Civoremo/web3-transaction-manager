@@ -1,9 +1,9 @@
 <script lang="ts">
-    import { TransactionModal } from '$lib';
-    import { TEST_TRANSACTION_FLOW } from '$lib/test/testTransactionFlow';
-    import { MockSigner } from '$lib/test/mockSigner';
-    import type { ThemeConfig } from '$lib/types/theme';
-    import { defaultTheme } from '$lib/types/theme';
+   import { TransactionModal } from '../src/lib'; // adjust path if needed
+import { TEST_TRANSACTION_FLOW } from '../src/lib/test/testTransactionFlow';
+import { MockSigner } from '../src/lib/test/mockSigner';
+import type { ThemeConfig } from '../src/lib/types/theme';
+import { defaultTheme } from '../src/lib/types/theme';
     import { writable } from 'svelte/store';
 
     let isOpen = false;

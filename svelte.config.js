@@ -3,20 +3,17 @@ import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
 
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
-	// Consult https://svelte.dev/docs/kit/integrations
-	// for more information about preprocessors
-	preprocess: vitePreprocess(),
+  preprocess: vitePreprocess(),
 
-	kit: {
-		// Use adapter-static for static site generation (Netlify, etc.)
-		adapter: adapter(),
-		alias: {
-			$lib: './src/lib'
-		}
-	},
-	vitePlugin: {
-		inspector: true
-	}
+  kit: {
+    adapter: adapter(),
+    alias: {
+      $lib: './src/lib'
+    },
+    package: {
+      dir: 'package' // ✅ This tells svelte-package to output to "package/"
+    }
+  }
 };
 
 export default config;

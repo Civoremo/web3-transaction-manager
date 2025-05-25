@@ -1,98 +1,72 @@
-<script lang="ts">
-  import { createEventDispatcher } from 'svelte';
-  import type { Transaction } from '../types';
-  import * as ethers from 'ethers';
-
-  export let isOpen: boolean = false;
-  export let transactions: Transaction[] = [];
-  export let signer: ethers.Signer;
-  export let address: string;
-  export let theme: 'light' | 'dark' = 'light';
-  export let title: string = 'Borrow 1000 USDC';
-  export let subtitle: string = 'Variable Rolling Rate';
-  export let redirectUrl: string = '#';
-  export let socialLinks: Array<{ label: string; url: string }> = [];
-  export let blockExplorerUrl: string;
-  export let supportChannelUrl: string = 'https://t.me/your-support';
-  export let closeOnOverlayClick: boolean = false;
-  export let successMessage: string = 'Head to the Positions page to track and manage your new position.';
-  export let redirectMessage: string = 'Positions';
-  export let showHelpSection: boolean = true;
-  export let helpMessage: string = 'Need help or have feedback?';
-  export let helpRedirectText: string = 'Chat with someone';
-  export let showFinalSuccessScreen: boolean = true;
-
-  const dispatch = createEventDispatcher();
-
-  type Status = 'pending' | 'processing' | 'success' | 'failed';
-  let internalStatuses: Record<string, { status: Status; hash?: string }> = {};
-
-  $: {
-    for (const tx of transactions) {
-      if (!internalStatuses[tx.id]) {
-        internalStatuses[tx.id] = { status: 'pending' };
-      }
+<script>import { createEventDispatcher } from "svelte";
+import * as ethers from "ethers";
+export let isOpen = false;
+export let transactions = [];
+export let signer;
+export let address;
+export let theme = "light";
+export let title = "Borrow 1000 USDC";
+export let subtitle = "Variable Rolling Rate";
+export let redirectUrl = "#";
+export let socialLinks = [];
+export let blockExplorerUrl;
+export let supportChannelUrl = "https://t.me/your-support";
+export let closeOnOverlayClick = false;
+export let successMessage = "Head to the Positions page to track and manage your new position.";
+export let redirectMessage = "Positions";
+export let showHelpSection = true;
+export let helpMessage = "Need help or have feedback?";
+export let helpRedirectText = "Chat with someone";
+export let showFinalSuccessScreen = true;
+const dispatch = createEventDispatcher();
+let internalStatuses = {};
+$: {
+  for (const tx of transactions) {
+    if (!internalStatuses[tx.id]) {
+      internalStatuses[tx.id] = { status: "pending" };
     }
   }
-
-  $: allTransactionsSuccessful =
-    transactions.length > 0 &&
-    Object.values(internalStatuses).every(s => s.status === 'success');
-
-  $: messageParts = successMessage.includes(redirectMessage)
-    ? successMessage.split(redirectMessage)
-    : ['', ''];
-
-  function handleClose() {
-    dispatch('close');
+}
+$: allTransactionsSuccessful = transactions.length > 0 && Object.values(internalStatuses).every((s) => s.status === "success");
+$: messageParts = successMessage.includes(redirectMessage) ? successMessage.split(redirectMessage) : ["", ""];
+function handleClose() {
+  dispatch("close");
+}
+function handleChat() {
+  if (supportChannelUrl) {
+    window.open(supportChannelUrl, "_blank");
   }
-
-  function handleChat() {
-    if (supportChannelUrl) {
-      window.open(supportChannelUrl, '_blank');
-    }
+}
+function handleRedirect(e) {
+  e.preventDefault();
+  handleClose();
+  window.location.href = redirectUrl;
+}
+function canExecute(txId) {
+  const txIndex = transactions.findIndex((tx) => tx.id === txId);
+  if (txIndex < 0) return false;
+  const currentStatus = internalStatuses[txId]?.status;
+  if (txIndex === 0) return currentStatus === "pending" || currentStatus === "failed";
+  const allPreviousSuccessful = transactions.slice(0, txIndex).every((tx) => internalStatuses[tx.id]?.status === "success");
+  return (currentStatus === "pending" || currentStatus === "failed") && allPreviousSuccessful;
+}
+async function executeTransaction(transactionId) {
+  const tx = transactions.find((tx2) => tx2.id === transactionId);
+  if (!tx || !signer) return;
+  internalStatuses[transactionId].status = "processing";
+  try {
+    const txResponse = await signer.sendTransaction(tx.params);
+    internalStatuses[transactionId] = {
+      status: "processing",
+      hash: txResponse.hash
+    };
+    const receipt = await txResponse.wait();
+    internalStatuses[transactionId].status = receipt.status === 1 ? "success" : "failed";
+  } catch (err) {
+    console.error(`Transaction ${transactionId} failed`, err);
+    internalStatuses[transactionId].status = "failed";
   }
-
-  function handleRedirect(e: Event) {
-    e.preventDefault();
-    handleClose();
-    window.location.href = redirectUrl;
-  }
-
-  function canExecute(txId: string): boolean {
-    const txIndex = transactions.findIndex(tx => tx.id === txId);
-    if (txIndex < 0) return false;
-
-    const currentStatus = internalStatuses[txId]?.status;
-    if (txIndex === 0) return currentStatus === 'pending' || currentStatus === 'failed';
-
-    const allPreviousSuccessful = transactions
-      .slice(0, txIndex)
-      .every(tx => internalStatuses[tx.id]?.status === 'success');
-
-    return (currentStatus === 'pending' || currentStatus === 'failed') && allPreviousSuccessful;
-  }
-
-  async function executeTransaction(transactionId: string) {
-    const tx = transactions.find(tx => tx.id === transactionId);
-    if (!tx || !signer) return;
-
-    internalStatuses[transactionId].status = 'processing';
-
-    try {
-      const txResponse = await signer.sendTransaction(tx.params);
-      internalStatuses[transactionId] = {
-        status: 'processing',
-        hash: txResponse.hash
-      };
-
-      const receipt = await txResponse.wait();
-      internalStatuses[transactionId].status = receipt.status === 1 ? 'success' : 'failed';
-    } catch (err) {
-      console.error(`Transaction ${transactionId} failed`, err);
-      internalStatuses[transactionId].status = 'failed';
-    }
-  }
+}
 </script>
 
 

@@ -1,87 +1,71 @@
 {
-	"name": "web3-transaction-manager",
-	"version": "0.0.20",
-	"description": "A Svelte package for managing sequential Web3 transactions with a user-friendly interface",
-	"author": "Civoremon",
-	"license": "MIT",
-	"type": "module",
-	"keywords": [
-		"svelte",
-		"web3",
-		"ethereum",
-		"transactions",
-		"blockchain"
-	],
-	"svelte": "./dist/index.js",
-	"types": "./dist/index.d.ts",
-	"exports": {
-		".": {
-			"types": "./dist/index.d.ts",
-			"svelte": "./dist/index.js",
-			"import": "./dist/index.js",
-			"require": "./dist/index.cjs"
-		}
-	},
-	"files": [
-		"dist",
-		"!dist/**/*.test.*",
-		"!dist/**/*.spec.*"
-	],
-	"scripts": {
-		"dev": "vite dev",
-		"build:lib": "vite build",
-		"build:demo": "vite build --config vite.config.demo.ts",
-		"build": "npm run build:lib && npm run build:demo",
-		"preview": "vite preview",
-		"package": "npm run build:lib",
-		"prepare": "npm run build:lib",
-		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
-		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
-		"test": "vitest run",
-		"test:watch": "vitest",
-		"test:coverage": "vitest run --coverage",
-		"test:page": "vite dev --open /test",
-		"lint": "eslint .",
-		"format": "prettier --write .",
-		"publish": "npm run build:lib && npm publish"
-	},
-	"devDependencies": {
-		"@sveltejs/adapter-auto": "1.0.0",
-		"@sveltejs/adapter-static": "^1.0.0",
-		"@sveltejs/kit": "^2.0.0",
-		"@sveltejs/vite-plugin-svelte": "2.4.5",
-		"@testing-library/jest-dom": "^6.4.2",
-		"@testing-library/svelte": "^5.2.7",
-		"eslint": "^9.25.1",
-		"eslint-plugin-svelte": "^3.5.1",
-		"jsdom": "^24.0.0",
-		"prettier": "^3.5.3",
-		"prettier-plugin-svelte": "^3.3.3",
-		"svelte": "^4.2.7",
-		"svelte-check": "^4.0.0",
-		"typescript": "^5.0.0",
-		"vite": "^4.0.0",
-		"vitest": "^3.1.2"
-	},
-	"dependencies": {
-		"@sveltejs/package": "^2.3.11",
-		"ethers": "^5.7.2"
-	},
-	"peerDependencies": {
-		"@sveltejs/kit": ">=1.0.0 <3.0.0",
-		"svelte": "^4.2.7"
-	},
-	"repository": {
-		"type": "git",
-		"url": "https://github.com/Civoremo/web3-transaction-manager"
-	},
-	"bugs": {
-		"url": "https://github.com/Civoremo/web3-transaction-manager/issues"
-	},
-	"homepage": "https://web3-transaction-manager.netlify.app/",
-	"publishConfig": {
-		"access": "public"
-	},
-	"main": "./dist/index.cjs",
-	"module": "./dist/index.js"
+  "name": "web3-transaction-manager",
+  "version": "0.0.47",
+  "description": "A Svelte package for managing sequential Web3 transactions with a user-friendly interface",
+  "author": "Civoremon",
+  "license": "MIT",
+  "type": "module",
+  "keywords": [
+    "svelte",
+    "web3",
+    "ethereum",
+    "transactions",
+    "blockchain"
+  ],
+  "svelte": "./package/index.js",
+  "types": "./package/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./package/index.d.ts",
+      "svelte": "./package/index.js",
+      "import": "./package/index.js"
+    },
+    "./style.css": "./package/style.css"
+  },
+  "files": [
+    "package",
+    "!package/**/*.test.*",
+    "!package/**/*.spec.*"
+  ],
+  "scripts": {
+    "dev": "vite dev",
+    "build": "vite build",
+    "build:demo": "vite build --config vite.config.demo.ts",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "package": "rm -rf package && svelte-package && mv dist package",
+    "prepare": "npm run package",
+    "publish": "npm publish --access public"
+  },
+  "devDependencies": {
+    "@sveltejs/adapter-auto": "^3.0.0",
+    "@sveltejs/adapter-static": "^3.0.8",
+    "@sveltejs/kit": "^2.0.0",
+    "@sveltejs/package": "^2.3.11",
+    "@sveltejs/vite-plugin-svelte": "^3.0.0",
+    "eslint": "^8.56.0",
+    "eslint-plugin-svelte": "^2.35.1",
+    "prettier": "^3.3.3",
+    "prettier-plugin-svelte": "^3.1.2",
+    "svelte": "^4.2.7",
+    "typescript": "^5.3.3",
+    "vite": "^5.0.3",
+    "vitest": "^2.1.3"
+  },
+  "peerDependencies": {
+    "@sveltejs/kit": "^2.0.0",
+    "ethers": "^5.7.2",
+    "svelte": "^4.2.7"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Civoremo/web3-transaction-manager"
+  },
+  "bugs": {
+    "url": "https://github.com/Civoremo/web3-transaction-manager/issues"
+  },
+  "homepage": "https://web3-transaction-manager.netlify.app/"
 }
