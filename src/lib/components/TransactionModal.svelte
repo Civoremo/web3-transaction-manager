@@ -2,6 +2,7 @@
   import { createEventDispatcher } from 'svelte';
   import type { Transaction } from '../types';
   import * as ethers from 'ethers';
+  import { defaultTheme } from '../types/theme';
 
   export let isOpen: boolean = false;
   export let transactions: Transaction[] = [];
@@ -32,6 +33,9 @@
   $: messageParts = successMessage.includes(redirectMessage)
     ? successMessage.split(redirectMessage)
     : ['', ''];
+
+  // Compute the theme object to use
+  $: currentTheme = defaultTheme[theme] || defaultTheme.light;
 
   function handleClose() {
     dispatch('close');
@@ -75,35 +79,59 @@
   }
 </script>
 
-<div class="web3-tx-modal">
+<div
+  class="web3-tx-modal"
+  style="
+    --button-primary: {currentTheme.buttonPrimary};
+    --button-primary-text: {currentTheme.buttonPrimaryText};
+    --button-disabled: {currentTheme.buttonDisabled};
+    --button-disabled-text: {currentTheme.buttonDisabledText};
+    --button-error: {currentTheme.buttonError};
+    --button-error-text: {currentTheme.buttonErrorText};
+    --button-success: {currentTheme.buttonSuccess};
+    --button-success-text: {currentTheme.buttonSuccessText};
+    --button-processing: {currentTheme.buttonProcessing};
+    --button-processing-text: {currentTheme.buttonProcessingText};
+    --button-hover: {currentTheme.buttonHover};
+    --primary-color: {currentTheme.primary};
+    --success-color: {currentTheme.success};
+    --error-color: {currentTheme.error};
+    --text-color: {currentTheme.text};
+    --background-color: {currentTheme.background};
+    --border-color: {currentTheme.border};
+    --disabled-color: {currentTheme.disabled};
+    --hover-color: {currentTheme.hover};
+    --card-color: {currentTheme.card};
+  "
+>
   {#if isOpen}
     <div 
-      class="modal-overlay"
+      class="web3-tx-modal-overlay"
       class:dark={theme === 'dark'}
       on:click={closeOnOverlayClick ? handleClose : undefined}
       on:keydown={e => e.key === 'Escape' && handleClose()}
-      role="button"
       aria-label="Close modal"
     >
       <div 
-        class="modal-content"
+        class="web3-tx-modal-content"
         role="dialog"
         aria-modal="true"
         on:click|stopPropagation
+        cursor: default
       >
-        <header class="modal-header">
-          <div class="title-section">
+        <header class="web3-tx-modal-header">
+          <div class="web3-tx-modal-title-section">
             {#if allTransactionsSuccessful}
               <h2 id="modal-title">Borrow Successful!</h2>
             {:else}
               <h2 id="modal-title">{title}</h2>
             {/if}
             {#if !allTransactionsSuccessful}
-              <div class="subtitle">{subtitle}</div>
+              <div class="web3-tx-modal-subtitle">{subtitle}</div>
             {/if}
           </div>
           <button 
-            class="close-button"
+            class="web3-tx-modal-close-button"
             on:click={handleClose}
             aria-label="Close modal"
           >
@@ -111,22 +139,22 @@
           </button>
         </header>
 
-        <div class="modal-body">
+        <div class="web3-tx-modal-body">
           {#if !allTransactionsSuccessful || !showFinalSuccessScreen}
-            <div class="transaction-list">
+            <div class="web3-tx-modal-transaction-list">
               {#key $transactionStatuses}
                 {#each transactions || [] as transaction (transaction.id)}
-                  <div class="transaction-row">
-                    <div class="tx-info">{transaction.metadata?.title}</div>
+                  <div class="web3-tx-modal-transaction-row">
+                    <div class="web3-tx-modal-tx-info">{transaction.metadata?.title}</div>
                     {#if $transactionStatuses[transaction.id]?.status === 'success'}
                       <a
                         href={`${blockExplorerUrl}${$transactionStatuses[transaction.id]?.hash}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        class="action-button success"
+                        class="web3-tx-modal-action-button web3-tx-modal-action-button-success"
                       >
                         Success
-                        <span class="external-link-icon">
+                        <span class="web3-tx-modal-external-link-icon">
                           <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
                             <path d="M18 13v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
                             <polyline points="15 3 21 3 21 9"/>
@@ -139,11 +167,11 @@
                         href={`${blockExplorerUrl}${$transactionStatuses[transaction.id]?.hash}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        class="action-button processing"
+                        class="web3-tx-modal-action-button web3-tx-modal-action-button-processing"
                       >
-                        <span class="spinner"></span>
+                        <span class="web3-tx-modal-spinner"></span>
                         Pending...
-                        <span class="external-link-icon">
+                        <span class="web3-tx-modal-external-link-icon">
                           <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
                             <path d="M18 13v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
                             <polyline points="15 3 21 3 21 9"/>
@@ -152,7 +180,7 @@
                         </span>
                       </a>
                     {:else if $transactionStatuses[transaction.id]?.status === 'failed'}
-                      <button class="action-button error" on:click={() => handleTxExecute(transaction.id)}>
+                      <button class="web3-tx-modal-action-button web3-tx-modal-action-button-error" on:click={() => handleTxExecute(transaction.id)}>
                         Retry
                       </button>
                     {:else if (
@@ -165,28 +193,28 @@
                         $transactionStatuses[transaction.id]?.status === 'failed'
                       )
                     )}
-                      <button class="action-button active" on:click={() => handleTxExecute(transaction.id)}>
+                      <button class="web3-tx-modal-action-button web3-tx-modal-action-button-active" on:click={() => handleTxExecute(transaction.id)}>
                         {transaction.metadata?.buttonLabel}
                       </button>
                     {:else}
-                      <button class="action-button disabled">{transaction.metadata?.buttonLabel}</button>
+                      <button class="web3-tx-modal-action-button web3-tx-modal-action-button-disabled">{transaction.metadata?.buttonLabel}</button>
                     {/if}
                   </div>
                 {/each}
               {/key}
             </div>
             {#if allTransactionsSuccessful && !showFinalSuccessScreen}
-              <div class="success-at-bottom">Successful</div>
+              <div class="web3-tx-modal-success-at-bottom">Successful</div>
             {/if}
           {:else}
-            <div class="success-screen">
-              <p class="success-message">
+            <div class="web3-tx-modal-success-screen">
+              <p class="web3-tx-modal-success-message">
                 {messageParts[0]}<a href={redirectUrl} on:click={handleRedirect}>{redirectMessage}</a>{messageParts[1]}
               </p>
               {#if socialLinks?.length > 0}
-                <div class="social-links">
+                <div class="web3-tx-modal-social-links">
                   {#each socialLinks as {label, url}}
-                    <button class="social-button" on:click={() => window.open(url, '_blank')}>
+                    <button class="web3-tx-modal-social-button" on:click={() => window.open(url, '_blank')}>
                       {label}
                     </button>
                   {/each}
@@ -196,10 +224,10 @@
           {/if}
         </div>
 
-        <footer class="modal-footer">
+        <footer class="web3-tx-modal-footer">
           {#if showHelpSection}
-            <div class="help-text">
-              {helpMessage} <button class="chat-link" on:click={handleChat}>{helpRedirectText}</button>.
+            <div class="web3-tx-modal-help-text">
+              {helpMessage} <button class="web3-tx-modal-chat-link" on:click={handleChat}>{helpRedirectText}</button>.
             </div>
           {/if}
         </footer>
@@ -214,7 +242,7 @@
   /* Scoping container */
 }
 
-.web3-tx-modal .modal-overlay {
+.web3-tx-modal-overlay {
   position: fixed;
   inset: 0;
   background: rgba(30, 41, 59, 0.18);
@@ -222,24 +250,26 @@
   align-items: center;
   justify-content: center;
   z-index: 1000;
+  cursor: default;
 }
 
-.web3-tx-modal .modal-content {
+.web3-tx-modal-content {
   width: 480px;
   padding: 32px;
   border-radius: 16px;
   background: white;
   box-shadow: 0 8px 32px rgba(16, 30, 54, 0.12);
   position: relative;
+  cursor: default;
 }
 
-.web3-tx-modal .modal-header {
+.web3-tx-modal-header {
   margin-bottom: 24px;
   text-align: left;
   position: relative;
 }
 
-.web3-tx-modal .title-section {
+.web3-tx-modal-title-section {
   text-align: center;
   flex: 1;
 }
@@ -250,13 +280,13 @@
   color: #111827;
 }
 
-.web3-tx-modal .subtitle {
+.web3-tx-modal-subtitle {
   font-size: 16px;
   color: #6B7280;
   margin-top: 4px;
 }
 
-.web3-tx-modal .close-button {
+.web3-tx-modal-close-button {
   position: absolute;
   top: 0;
   right: 0;
@@ -267,15 +297,15 @@
   cursor: pointer;
 }
 
-.web3-tx-modal .modal-body {
+.web3-tx-modal-body {
   padding: 1rem;
 }
 
-.web3-tx-modal .transaction-list {
+.web3-tx-modal-transaction-list {
   margin-bottom: 0;
 }
 
-.web3-tx-modal .transaction-row {
+.web3-tx-modal-transaction-row {
   background: var(--card-color, #F7F7FA);
   border-radius: 12px;
   padding: 16px 20px;
@@ -285,78 +315,85 @@
   align-items: center;
 }
 
-.web3-tx-modal .tx-info {
+.web3-tx-modal-tx-info {
   font-size: 16px;
   color: #111827;
   font-weight: 500;
 }
 
-.web3-tx-modal .action-button {
-  padding: 8px 16px;
-  border-radius: 8px;
+.web3-tx-modal .web3-tx-modal-action-button,
+.web3-tx-modal .web3-tx-modal-action-button-success,
+.web3-tx-modal .web3-tx-modal-action-button-processing,
+.web3-tx-modal .web3-tx-modal-action-button-error,
+.web3-tx-modal .web3-tx-modal-action-button-active,
+.web3-tx-modal .web3-tx-modal-action-button-disabled {
   font-size: 14px;
   font-weight: 500;
+  border-radius: 8px;
   border: none;
   outline: none;
-  transition: all 0.2s;
   min-width: 90px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  cursor: pointer;
   text-decoration: none;
+  transition: all 0.2s;
+  padding: 8px 16px;
+  cursor: default;
 }
 
-.web3-tx-modal .action-button.active {
+.web3-tx-modal .web3-tx-modal-action-button-active {
   background: var(--button-primary);
   color: var(--button-primary-text);
+  cursor: pointer;
 }
 
-.web3-tx-modal .action-button.active:hover {
+.web3-tx-modal .web3-tx-modal-action-button-active:hover {
   background: var(--button-hover);
 }
 
-.web3-tx-modal .action-button.disabled {
+.web3-tx-modal .web3-tx-modal-action-button-disabled {
   background: var(--button-disabled);
   color: var(--button-disabled-text);
   cursor: not-allowed;
-  opacity: 1;
 }
 
-.web3-tx-modal .action-button.processing {
+.web3-tx-modal .web3-tx-modal-action-button-processing {
   background: var(--button-processing);
   color: var(--button-processing-text);
   display: inline-flex;
   align-items: center;
   gap: 8px;
+  cursor: pointer;
 }
 
-.web3-tx-modal .action-button.processing:hover {
+.web3-tx-modal .web3-tx-modal-action-button-processing:hover {
   background: var(--button-hover);
 }
 
-.web3-tx-modal .action-button.success {
+.web3-tx-modal .web3-tx-modal-action-button-success {
   background: var(--button-success);
   color: var(--button-success-text);
   border: 1px solid var(--border-color);
   padding-right: 12px;
+  cursor: pointer;
 }
 
-.web3-tx-modal .action-button.success:hover {
+.web3-tx-modal .web3-tx-modal-action-button-success:hover {
   background: #F8FAFC;
 }
 
-.web3-tx-modal .action-button.error {
+.web3-tx-modal .web3-tx-modal-action-button-error {
   background: var(--button-error);
   color: var(--button-error-text);
   cursor: pointer;
 }
 
-.web3-tx-modal .action-button.error:hover {
+.web3-tx-modal .web3-tx-modal-action-button-error:hover {
   background: #B91C1C;
 }
 
-.web3-tx-modal .spinner {
+.web3-tx-modal-spinner {
   width: 16px;
   height: 16px;
   border: 2px solid currentColor;
@@ -368,7 +405,7 @@
   vertical-align: middle;
 }
 
-.web3-tx-modal .success-screen {
+.web3-tx-modal-success-screen {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -377,7 +414,7 @@
   margin-top: -1rem;
 }
 
-.web3-tx-modal .success-message {
+.web3-tx-modal-success-message {
   font-size: 16px;
   line-height: 24px;
   color: #64748B;
@@ -386,7 +423,7 @@
   text-align: center;
 }
 
-.web3-tx-modal :global(.success-message a) {
+.web3-tx-modal :global(.web3-tx-modal-success-message a) {
   color: var(--primary-color) !important;
   text-decoration: none !important;
   font-weight: 400 !important;
@@ -397,11 +434,11 @@
   font-size: inherit;
 }
 
-.web3-tx-modal :global(.success-message a:hover) {
+.web3-tx-modal :global(.web3-tx-modal-success-message a:hover) {
   text-decoration: underline !important;
 }
 
-.web3-tx-modal .social-links {
+.web3-tx-modal-social-links {
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -411,7 +448,7 @@
   margin: 0 auto;
 }
 
-.web3-tx-modal .social-button {
+.web3-tx-modal-social-button {
   width: 100%;
   padding: 10px 16px;
   border: 1px solid #E2E8F0;
@@ -427,23 +464,23 @@
   white-space: nowrap;
 }
 
-.web3-tx-modal .social-button:hover {
+.web3-tx-modal-social-button:hover {
   background: #F8FAFC;
   border-color: #CBD5E1;
 }
 
-.web3-tx-modal .modal-footer {
+.web3-tx-modal-footer {
   margin-top: 32px;
   text-align: center;
 }
 
-.web3-tx-modal .help-text {
+.web3-tx-modal-help-text {
   font-size: 14px;
   color: #64748B;
   font-weight: 400;
 }
 
-.web3-tx-modal .chat-link {
+.web3-tx-modal-chat-link {
   background: none;
   border: none;
   color: #4F7FFF;
@@ -453,11 +490,11 @@
   cursor: pointer;
 }
 
-.web3-tx-modal .chat-link:hover {
+.web3-tx-modal-chat-link:hover {
   text-decoration: underline;
 }
 
-.web3-tx-modal .external-link-icon {
+.web3-tx-modal-external-link-icon {
   display: inline-flex;
   align-items: center;
   margin-left: 0.25em;
@@ -465,13 +502,13 @@
   color: inherit;
 }
 
-.web3-tx-modal .external-link-icon svg {
+.web3-tx-modal-external-link-icon svg {
   width: 1em;
   height: 1em;
   stroke: currentColor;
 }
 
-.web3-tx-modal .success-at-bottom {
+.web3-tx-modal-success-at-bottom {
   color: var(--success-color);
   font-size: 1.1rem;
   font-weight: 600;
@@ -486,7 +523,7 @@
 }
 
 /* Dark theme overrides */
-.web3-tx-modal.dark .modal-content {
+.web3-tx-modal.dark .web3-tx-modal-content {
   background: #1F2937;
 }
 
@@ -494,40 +531,40 @@
   color: white;
 }
 
-.web3-tx-modal.dark .subtitle,
-.web3-tx-modal.dark .help-text {
+.web3-tx-modal.dark .web3-tx-modal-subtitle,
+.web3-tx-modal.dark .web3-tx-modal-help-text {
   color: #9CA3AF;
 }
 
-.web3-tx-modal.dark .transaction-row {
+.web3-tx-modal.dark .web3-tx-modal-transaction-row {
   background: var(--card-color, #374151);
 }
 
-.web3-tx-modal.dark .tx-info {
+.web3-tx-modal.dark .web3-tx-modal-tx-info {
   color: white;
 }
 
-.web3-tx-modal.dark .action-button.disabled {
+.web3-tx-modal.dark .web3-tx-modal-action-button-disabled {
   background: rgba(79, 127, 255, 0.1);
   color: #4F7FFF;
 }
 
-.web3-tx-modal.dark .action-button.processing {
+.web3-tx-modal.dark .web3-tx-modal-action-button-processing {
   background: #4F7FFF;
   color: white;
 }
 
-.web3-tx-modal.dark .action-button.success {
+.web3-tx-modal.dark .web3-tx-modal-action-button-success {
   background: #1F2937;
   border-color: #374151;
   color: #9CA3AF;
 }
 
-.web3-tx-modal.dark .action-button.success:hover {
+.web3-tx-modal.dark .web3-tx-modal-action-button-success:hover {
   background: #374151;
 }
 
-.web3-tx-modal.dark .close-button {
+.web3-tx-modal.dark .web3-tx-modal-close-button {
   color: #9CA3AF;
 }
 </style>
