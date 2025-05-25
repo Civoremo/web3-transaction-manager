@@ -21,23 +21,13 @@
   export let helpMessage: string = 'Need help or have feedback?';
   export let helpRedirectText: string = 'Chat with someone';
   export let showFinalSuccessScreen: boolean = true;
+  export let transactionStatuses;
 
   const dispatch = createEventDispatcher();
 
-  type Status = 'pending' | 'processing' | 'success' | 'failed';
-  let internalStatuses: Record<string, { status: Status; hash?: string }> = {};
-
-  $: {
-    for (const tx of transactions) {
-      if (!internalStatuses[tx.id]) {
-        internalStatuses[tx.id] = { status: 'pending' };
-      }
-    }
-  }
-
   $: allTransactionsSuccessful =
     transactions.length > 0 &&
-    Object.values(internalStatuses).every(s => s.status === 'success');
+    transactions.every(tx => $transactionStatuses[tx.id]?.status === 'success');
 
   $: messageParts = successMessage.includes(redirectMessage)
     ? successMessage.split(redirectMessage)
@@ -60,41 +50,30 @@
   }
 
   function canExecute(txId: string): boolean {
-    const txIndex = transactions.findIndex(tx => tx.id === txId);
+    const txIndex = transactions.findIndex((tx) => tx.id === txId);
     if (txIndex < 0) return false;
 
-    const currentStatus = internalStatuses[txId]?.status;
-    if (txIndex === 0) return currentStatus === 'pending' || currentStatus === 'failed';
+    const currentStatus = $transactionStatuses[txId]?.status;
+    if (txIndex === 0) {
+      return currentStatus === 'pending' || currentStatus === 'failed';
+    }
 
     const allPreviousSuccessful = transactions
       .slice(0, txIndex)
-      .every(tx => internalStatuses[tx.id]?.status === 'success');
+      .every((tx) => $transactionStatuses[tx.id]?.status === 'success');
 
-    return (currentStatus === 'pending' || currentStatus === 'failed') && allPreviousSuccessful;
+   
+
+    return (
+      allPreviousSuccessful &&
+      (!currentStatus || currentStatus === 'pending' || currentStatus === 'failed')
+    );
   }
 
-  async function executeTransaction(transactionId: string) {
-    const tx = transactions.find(tx => tx.id === transactionId);
-    if (!tx || !signer) return;
-
-    internalStatuses[transactionId].status = 'processing';
-
-    try {
-      const txResponse = await signer.sendTransaction(tx.params);
-      internalStatuses[transactionId] = {
-        status: 'processing',
-        hash: txResponse.hash
-      };
-
-      const receipt = await txResponse.wait();
-      internalStatuses[transactionId].status = receipt.status === 1 ? 'success' : 'failed';
-    } catch (err) {
-      console.error(`Transaction ${transactionId} failed`, err);
-      internalStatuses[transactionId].status = 'failed';
-    }
+  function handleTxExecute(transactionId: string) {
+    dispatch('txExecute', { transactionId });
   }
 </script>
-
 
 <div class="web3-tx-modal">
   {#if isOpen}
@@ -135,55 +114,66 @@
         <div class="modal-body">
           {#if !allTransactionsSuccessful || !showFinalSuccessScreen}
             <div class="transaction-list">
-              {#each transactions || [] as transaction}
-                <div class="transaction-row">
-                  <div class="tx-info">{transaction.metadata?.title}</div>
-                  {#if internalStatuses[transaction.id]?.status === 'success'}
-                    <a
-                      href={`${blockExplorerUrl}${internalStatuses[transaction.id]?.hash}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      class="action-button success"
-                    >
-                      Success
-                      <span class="external-link-icon">
-                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
-                          <path d="M18 13v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
-                          <polyline points="15 3 21 3 21 9"/>
-                          <line x1="10" y1="14" x2="21" y2="3"/>
-                        </svg>
-                      </span>
-                    </a>
-                  {:else if internalStatuses[transaction.id]?.status === 'processing'}
-                    <a
-                      href={`${blockExplorerUrl}${internalStatuses[transaction.id]?.hash}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      class="action-button processing"
-                    >
-                      <span class="spinner"></span>
-                      Pending...
-                      <span class="external-link-icon">
-                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
-                          <path d="M18 13v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
-                          <polyline points="15 3 21 3 21 9"/>
-                          <line x1="10" y1="14" x2="21" y2="3"/>
-                        </svg>
-                      </span>
-                    </a>
-                  {:else if internalStatuses[transaction.id]?.status === 'failed'}
-                    <button class="action-button error" on:click={() => executeTransaction(transaction.id)}>
-                      Retry
-                    </button>
-                  {:else if canExecute(transaction.id)}
-                    <button class="action-button active" on:click={() => executeTransaction(transaction.id)}>
-                      {transaction.metadata?.buttonLabel}
-                    </button>
-                  {:else}
-                    <button class="action-button disabled">{transaction.metadata?.buttonLabel}</button>
-                  {/if}
-                </div>
-              {/each}
+              {#key $transactionStatuses}
+                {#each transactions || [] as transaction (transaction.id)}
+                  <div class="transaction-row">
+                    <div class="tx-info">{transaction.metadata?.title}</div>
+                    {#if $transactionStatuses[transaction.id]?.status === 'success'}
+                      <a
+                        href={`${blockExplorerUrl}${$transactionStatuses[transaction.id]?.hash}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="action-button success"
+                      >
+                        Success
+                        <span class="external-link-icon">
+                          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+                            <path d="M18 13v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+                            <polyline points="15 3 21 3 21 9"/>
+                            <line x1="10" y1="14" x2="21" y2="3"/>
+                          </svg>
+                        </span>
+                      </a>
+                    {:else if $transactionStatuses[transaction.id]?.status === 'processing'}
+                      <a
+                        href={`${blockExplorerUrl}${$transactionStatuses[transaction.id]?.hash}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="action-button processing"
+                      >
+                        <span class="spinner"></span>
+                        Pending...
+                        <span class="external-link-icon">
+                          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+                            <path d="M18 13v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+                            <polyline points="15 3 21 3 21 9"/>
+                            <line x1="10" y1="14" x2="21" y2="3"/>
+                          </svg>
+                        </span>
+                      </a>
+                    {:else if $transactionStatuses[transaction.id]?.status === 'failed'}
+                      <button class="action-button error" on:click={() => handleTxExecute(transaction.id)}>
+                        Retry
+                      </button>
+                    {:else if (
+                      transactions
+                        .slice(0, transactions.findIndex(tx => tx.id === transaction.id))
+                        .every(tx => $transactionStatuses[tx.id]?.status === 'success') &&
+                      (
+                        !$transactionStatuses[transaction.id]?.status ||
+                        $transactionStatuses[transaction.id]?.status === 'pending' ||
+                        $transactionStatuses[transaction.id]?.status === 'failed'
+                      )
+                    )}
+                      <button class="action-button active" on:click={() => handleTxExecute(transaction.id)}>
+                        {transaction.metadata?.buttonLabel}
+                      </button>
+                    {:else}
+                      <button class="action-button disabled">{transaction.metadata?.buttonLabel}</button>
+                    {/if}
+                  </div>
+                {/each}
+              {/key}
             </div>
             {#if allTransactionsSuccessful && !showFinalSuccessScreen}
               <div class="success-at-bottom">Successful</div>

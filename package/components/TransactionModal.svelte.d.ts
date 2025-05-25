@@ -24,10 +24,12 @@ declare const __propDef: {
         helpMessage?: string;
         helpRedirectText?: string;
         showFinalSuccessScreen?: boolean;
+        transactionStatuses: any;
     };
     events: {
         click: MouseEvent;
         close: CustomEvent<any>;
+        txExecute: CustomEvent<any>;
     } & {
         [evt: string]: CustomEvent<any>;
     };
