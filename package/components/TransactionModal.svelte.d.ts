@@ -25,6 +25,7 @@ declare const __propDef: {
         helpRedirectText?: string;
         showFinalSuccessScreen?: boolean;
         transactionStatuses: any;
+        customTheme?: {};
     };
     events: {
         click: MouseEvent;

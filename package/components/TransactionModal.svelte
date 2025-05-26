@@ -20,10 +20,14 @@ export let helpMessage = "Need help or have feedback?";
 export let helpRedirectText = "Chat with someone";
 export let showFinalSuccessScreen = true;
 export let transactionStatuses;
+export let customTheme = {};
 const dispatch = createEventDispatcher();
 $: allTransactionsSuccessful = transactions.length > 0 && transactions.every((tx) => $transactionStatuses[tx.id]?.status === "success");
 $: messageParts = successMessage.includes(redirectMessage) ? successMessage.split(redirectMessage) : ["", ""];
-$: currentTheme = defaultTheme[theme] || defaultTheme.light;
+$: currentTheme = {
+  ...defaultTheme[theme],
+  ...customTheme?.[theme] || {}
+};
 function handleClose() {
   dispatch("close");
 }
@@ -75,6 +79,32 @@ function handleTxExecute(transactionId) {
     --disabled-color: {currentTheme.disabled};
     --hover-color: {currentTheme.hover};
     --card-color: {currentTheme.card};
+    --font-family: {theme.fontFamily};
+    --title-font-size: {theme.titleFontSize};
+    --title-color: {theme.titleColor};
+    --subtitle-font-size: {theme.subtitleFontSize};
+    --subtitle-color: {theme.subtitleColor};
+    --metadata-title-font-size: {theme.metadataTitleFontSize};
+    --metadata-title-color: {theme.metadataTitleColor};
+    --metadata-button-label-font-size: {theme.metadataButtonLabelFontSize};
+    --metadata-button-label-color: {theme.metadataButtonLabelColor};
+    --metadata-button-label-success-color: {theme.metadataButtonLabelSuccessColor};
+    --help-text-font-size: {theme.helpTextFontSize};
+    --help-text-color: {theme.helpTextColor};
+    --help-redirect-font-size: {theme.helpRedirectFontSize};
+    --help-redirect-color: {theme.helpRedirectColor};
+    --help-redirect-hover-color: {theme.helpRedirectHoverColor};
+    --social-link-font-size: {theme.socialLinkFontSize};
+    --social-link-color: {theme.socialLinkColor};
+    --social-link-button-background: {theme.socialLinkButtonBackground};
+    --success-message-font-size: {theme.successMessageFontSize};
+    --success-message-color: {theme.successMessageColor};
+    --success-redirect-color: {theme.successRedirectColor};
+    --success-redirect-hover-color: {theme.successRedirectHoverColor};
+    --modal-background: {theme.modalBackground};
+    --primary-action-button-background: {theme.primaryActionButtonBackground};
+    --primary-success-button-background: {theme.primarySuccessButtonBackground};
+    --disabled-button-background: {theme.disabledButtonBackground};
   "
 >
   {#if isOpen}
@@ -212,6 +242,8 @@ function handleTxExecute(transactionId) {
 
 <style>
 .web3-tx-modal {
+  font-family: var(--font-family, inherit);
+  background: var(--modal-background, rgba(62, 124, 255, 0.3));
   /* Scoping container */
 }
 
@@ -230,7 +262,7 @@ function handleTxExecute(transactionId) {
   width: 480px;
   padding: 32px;
   border-radius: 16px;
-  background: white;
+  background: var(--modal-background, #FAFAFB);
   box-shadow: 0 8px 32px rgba(16, 30, 54, 0.12);
   position: relative;
   cursor: default;
@@ -248,14 +280,14 @@ function handleTxExecute(transactionId) {
 }
 
 .web3-tx-modal h2 {
-  font-size: 24px;
+  font-size: var(--title-font-size, 24px);
   font-weight: 600;
-  color: #111827;
+  color: var(--title-color, #111827);
 }
 
 .web3-tx-modal-subtitle {
-  font-size: 16px;
-  color: #6B7280;
+  font-size: var(--subtitle-font-size, 16px);
+  color: var(--subtitle-color, #6B7280);
   margin-top: 4px;
 }
 
@@ -279,7 +311,7 @@ function handleTxExecute(transactionId) {
 }
 
 .web3-tx-modal-transaction-row {
-  background: var(--card-color, #F7F7FA);
+  background: var(--card-color, #EEEFFA);
   border-radius: 12px;
   padding: 16px 20px;
   margin-bottom: 12px;
@@ -290,7 +322,7 @@ function handleTxExecute(transactionId) {
 
 .web3-tx-modal-tx-info {
   font-size: 16px;
-  color: #111827;
+  color: var(--metadata-title-color, #111827);
   font-weight: 500;
 }
 
@@ -300,7 +332,7 @@ function handleTxExecute(transactionId) {
 .web3-tx-modal .web3-tx-modal-action-button-error,
 .web3-tx-modal .web3-tx-modal-action-button-active,
 .web3-tx-modal .web3-tx-modal-action-button-disabled {
-  font-size: 14px;
+  font-size: var(--metadata-button-label-font-size, 14px);
   font-weight: 500;
   border-radius: 8px;
   border: none;
@@ -316,7 +348,7 @@ function handleTxExecute(transactionId) {
 }
 
 .web3-tx-modal .web3-tx-modal-action-button-active {
-  background: var(--button-primary);
+  background: var(--primary-action-button-background, #2B51E8);
   color: var(--button-primary-text);
   cursor: pointer;
 }
@@ -326,14 +358,14 @@ function handleTxExecute(transactionId) {
 }
 
 .web3-tx-modal .web3-tx-modal-action-button-disabled {
-  background: var(--button-disabled);
-  color: var(--button-disabled-text);
+  background: var(--disabled-button-background, #BDC9F8);
+  color: var(--button-disabled-text, #FFFFFF);
   cursor: not-allowed;
 }
 
 .web3-tx-modal .web3-tx-modal-action-button-processing {
-  background: var(--button-processing);
-  color: var(--button-processing-text);
+  background: var(--primary-action-button-background, #2B51E8);
+  color: var(--button-processing-text, #FFFFFF);
   display: inline-flex;
   align-items: center;
   gap: 8px;
@@ -345,8 +377,8 @@ function handleTxExecute(transactionId) {
 }
 
 .web3-tx-modal .web3-tx-modal-action-button-success {
-  background: var(--button-success);
-  color: var(--button-success-text);
+  background: var(--primary-success-button-background, #FFFFFF);
+  color: var(--metadata-button-label-success-color, #000000);
   border: 1px solid var(--border-color);
   padding-right: 12px;
   cursor: pointer;
@@ -388,9 +420,9 @@ function handleTxExecute(transactionId) {
 }
 
 .web3-tx-modal-success-message {
-  font-size: 16px;
+  font-size: var(--success-message-font-size, 16px);
   line-height: 24px;
-  color: #64748B;
+  color: var(--success-message-color, #64748B);
   margin: 24px 0 32px;
   font-weight: 400;
   text-align: center;
@@ -426,8 +458,8 @@ function handleTxExecute(transactionId) {
   padding: 10px 16px;
   border: 1px solid #E2E8F0;
   border-radius: 100px;
-  background: white;
-  color: #334155;
+  background: var(--social-link-button-background, #FFFFFF);
+  color: var(--social-link-color, #334155);
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
@@ -448,15 +480,15 @@ function handleTxExecute(transactionId) {
 }
 
 .web3-tx-modal-help-text {
-  font-size: 14px;
-  color: #64748B;
+  font-size: var(--help-text-font-size, 14px);
+  color: var(--help-text-color, #64748B);
   font-weight: 400;
 }
 
 .web3-tx-modal-chat-link {
   background: none;
   border: none;
-  color: #4F7FFF;
+  color: var(--help-text-color, #555F81);
   padding: 0;
   font-size: inherit;
   font-weight: 400;
@@ -464,7 +496,9 @@ function handleTxExecute(transactionId) {
 }
 
 .web3-tx-modal-chat-link:hover {
+  color: var(--help-text-color, #555F81);
   text-decoration: underline;
+  text-decoration-color: var(--help-text-color, #555F81);
 }
 
 .web3-tx-modal-external-link-icon {
@@ -497,7 +531,7 @@ function handleTxExecute(transactionId) {
 
 /* Dark theme overrides */
 .web3-tx-modal.dark .web3-tx-modal-content {
-  background: #1F2937;
+  background: var(--modal-background, #181A20);
 }
 
 .web3-tx-modal.dark h2 {
@@ -510,7 +544,7 @@ function handleTxExecute(transactionId) {
 }
 
 .web3-tx-modal.dark .web3-tx-modal-transaction-row {
-  background: var(--card-color, #374151);
+  background: var(--card-color);
 }
 
 .web3-tx-modal.dark .web3-tx-modal-tx-info {
@@ -518,8 +552,8 @@ function handleTxExecute(transactionId) {
 }
 
 .web3-tx-modal.dark .web3-tx-modal-action-button-disabled {
-  background: rgba(79, 127, 255, 0.1);
-  color: #4F7FFF;
+  background: var(--disabled-button-background, #3A4668);
+  color: var(--button-disabled-text, #FFFFFF);
 }
 
 .web3-tx-modal.dark .web3-tx-modal-action-button-processing {

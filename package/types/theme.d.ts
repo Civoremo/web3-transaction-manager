@@ -1,3 +1,27 @@
+export interface ThemeTypography {
+    fontFamily?: string;
+    titleFontSize?: string;
+    titleColor?: string;
+    subtitleFontSize?: string;
+    subtitleColor?: string;
+    metadataTitleFontSize?: string;
+    metadataTitleColor?: string;
+    metadataButtonLabelFontSize?: string;
+    metadataButtonLabelColor?: string;
+    metadataButtonLabelSuccessColor?: string;
+    helpTextFontSize?: string;
+    helpTextColor?: string;
+    helpRedirectFontSize?: string;
+    helpRedirectColor?: string;
+    helpRedirectHoverColor?: string;
+    socialLinkFontSize?: string;
+    socialLinkColor?: string;
+    socialLinkButtonBackground?: string;
+    successMessageFontSize?: string;
+    successMessageColor?: string;
+    successRedirectColor?: string;
+    successRedirectHoverColor?: string;
+}
 export interface ThemeColors {
     primary: string;
     success: string;
@@ -19,9 +43,13 @@ export interface ThemeColors {
     buttonProcessing?: string;
     buttonProcessingText?: string;
     buttonHover?: string;
+    modalBackground?: string;
+    primaryActionButtonBackground?: string;
+    primarySuccessButtonBackground?: string;
+    disabledButtonBackground?: string;
 }
 export interface ThemeConfig {
-    light: ThemeColors;
-    dark: ThemeColors;
+    light: ThemeColors & ThemeTypography;
+    dark: ThemeColors & ThemeTypography;
 }
 export declare const defaultTheme: ThemeConfig;

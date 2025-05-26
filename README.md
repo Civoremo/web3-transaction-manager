@@ -289,3 +289,58 @@ The modal will submit this as a single transaction. The contract will execute al
 ## License
 
 MIT
+
+## Theme Customization
+
+You can now customize font sizes, font family, and text colors for all modal elements via the `customTheme` prop. All values are optional and will fall back to sensible defaults.
+
+### Customizable Theme Variables
+
+| Variable                          | Default (Light)      | Default (Dark)      | Description                                 |
+|------------------------------------|----------------------|---------------------|---------------------------------------------|
+| fontFamily                        | inherit              | inherit             | Font family for all modal text              |
+| titleFontSize                     | 24px                 | 24px                | Modal title font size                       |
+| titleColor                        | #000000              | #FFFFFF             | Modal title color                           |
+| subtitleFontSize                  | 18px                 | 18px                | Modal subtitle font size                    |
+| subtitleColor                     | #555F81              | #AAB8D1             | Modal subtitle color                        |
+| metadataTitleFontSize             | 15px                 | 15px                | Metadata title font size                    |
+| metadataTitleColor                | #000000              | #FFFFFF             | Metadata title color                        |
+| metadataButtonLabelFontSize       | 14px                 | 14px                | Button label font size                      |
+| metadataButtonLabelColor          | #FFFFFF              | #FFFFFF             | Button label color (default)                |
+| metadataButtonLabelSuccessColor   | #000000              | #2B51E8             | Button label color (success)                |
+| helpTextFontSize                  | 12px                 | 12px                | Help/need help text font size               |
+| helpTextColor                     | #555F81              | #AAB8D1             | Help/need help text color                   |
+| helpRedirectFontSize              | 12px                 | 12px                | Help redirect link font size                |
+| helpRedirectColor                 | #555F81              | #AAB8D1             | Help redirect link color                    |
+| helpRedirectHoverColor            | #2e54e8              | #6C8CFF             | Help redirect link hover color              |
+| socialLinkFontSize                | 15px                 | 15px                | Social link text font size                  |
+| socialLinkColor                   | #000000              | #FFFFFF             | Social link text color                      |
+| socialLinkButtonBackground        | #FFFFFF              | #232946             | Social link button background color         |
+| successMessageFontSize            | 18px                 | 18px                | Success message font size                   |
+| successMessageColor               | #555F81              | #AAB8D1             | Success message text color                  |
+| successRedirectColor              | #2e54e8              | #6C8CFF             | Success redirect link color                 |
+| successRedirectHoverColor         | #2e54e8              | #AAB8D1             | Success redirect link hover color           |
+| modalBackground                   | rgba(62,124,255,0.3) | rgba(43,81,232,0.3) | Modal background color                      |
+| primaryActionButtonBackground     | #2B51E8              | #6C8CFF             | Primary action button background            |
+| primarySuccessButtonBackground    | #FFFFFF              | #232946             | Success button background                   |
+| disabledButtonBackground          | #BDC9F8              | #3A4668             | Disabled button background                  |
+
+### Example: Overriding Theme
+
+```svelte
+<TransactionModal
+  customTheme={{
+    light: {
+      fontFamily: 'Inter, sans-serif',
+      titleFontSize: '28px',
+      titleColor: '#222222',
+      subtitleFontSize: '20px',
+      subtitleColor: '#888888',
+      // ...override any other variables as needed
+    },
+    dark: {
+      // ...dark theme overrides
+    }
+  }}
+/>
+```
