@@ -153,4 +153,27 @@ export const defaultTheme: ThemeConfig = {
         primarySuccessButtonBackground: '#232946',
         disabledButtonBackground: '#3A4668',
     }
-}; 
+};
+
+export type TransactionType = 'approval' | 'contract' | 'fetch' | 'standard';
+
+export interface Transaction {
+  id: string;
+  type: TransactionType;
+  params: {
+    // For contract/approval
+    to?: string;
+    data?: string;
+    value?: string;
+    // For fetch
+    url?: string;
+    method?: string;
+    body?: any;
+    headers?: Record<string, string>;
+  };
+  metadata: {
+    title: string;
+    buttonLabel: string;
+    description?: string;
+  };
+} 

@@ -344,3 +344,78 @@ You can now customize font sizes, font family, and text colors for all modal ele
   }}
 />
 ```
+
+## Mixed Transaction Flows: Contract and Fetch Steps
+
+You can now include both on-chain (contract/approval) and off-chain (fetch/REST/database) steps in your transaction flow. This allows you to mix web3 contract calls with backend/database requests, all with status tracking and retry support.
+
+### Supported Transaction Types
+
+- `approval`: ERC20 approve or similar contract call
+- `contract`: Any smart contract call
+- `fetch`: Off-chain HTTP(S) request (e.g., REST API, database)
+- `standard`: ETH transfer or other simple transaction
+
+### Transaction Interface
+
+```typescript
+export type TransactionType = 'approval' | 'contract' | 'fetch' | 'standard';
+
+export interface Transaction {
+  id: string;
+  type: TransactionType;
+  params: {
+    // For contract/approval
+    to?: string;
+    data?: string;
+    value?: string;
+    // For fetch
+    url?: string;
+    method?: string;
+    body?: any;
+    headers?: Record<string, string>;
+  };
+  metadata: {
+    title: string;
+    buttonLabel: string;
+    description?: string;
+  };
+}
+```
+
+### Example: Mixed Transaction Flow
+
+```js
+const transactions = [
+  {
+    id: 'approve',
+    type: 'approval',
+    params: { /* ... */ },
+    metadata: { title: 'Approve', buttonLabel: 'Approve' }
+  },
+  {
+    id: 'deposit',
+    type: 'contract',
+    params: { /* ... */ },
+    metadata: { title: 'Deposit', buttonLabel: 'Deposit' }
+  },
+  {
+    id: 'notifyBE',
+    type: 'fetch',
+    params: {
+      url: 'https://api.example.com/notify',
+      method: 'POST',
+      body: { user: '0x...', action: 'deposit' }
+    },
+    metadata: { title: 'Notify Backend', buttonLabel: 'Notify' }
+  },
+  {
+    id: 'borrow',
+    type: 'contract',
+    params: { /* ... */ },
+    metadata: { title: 'Borrow', buttonLabel: 'Borrow' }
+  }
+];
+```
+
+In your parent execution logic, check the `type` and execute accordingly (see previous instructions for code sample).
