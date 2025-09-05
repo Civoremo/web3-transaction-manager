@@ -17,6 +17,9 @@ export interface ThemeTypography {
     socialLinkFontSize?: string;
     socialLinkColor?: string;
     socialLinkButtonBackground?: string;
+    socialLinkHoverBackground?: string;
+    socialLinkHoverBorderColor?: string;
+    socialLinkHoverTextColor?: string;
     successMessageFontSize?: string;
     successMessageColor?: string;
     successRedirectColor?: string;
@@ -46,6 +49,8 @@ export interface ThemeColors {
     buttonProcessingText?: string;
     buttonHover?: string;
     modalBackground?: string;
+    modalBorderColor?: string;
+    modalBackdropBlur?: number;
     primaryActionButtonBackground?: string;
     primarySuccessButtonBackground?: string;
     disabledButtonBackground?: string;
@@ -96,11 +101,16 @@ export const defaultTheme: ThemeConfig = {
         socialLinkFontSize: '15px',
         socialLinkColor: '#000000',
         socialLinkButtonBackground: '#FFFFFF',
+        socialLinkHoverBackground: '#F8FAFC',
+        socialLinkHoverBorderColor: '#CBD5E1',
+        socialLinkHoverTextColor: '#000000',
         successMessageFontSize: '18px',
         successMessageColor: '#555F81',
         successRedirectColor: '#2e54e8',
         successRedirectHoverColor: '#2e54e8',
         modalBackground: '#FAFAFB',
+        modalBorderColor: '#FAFAFB',
+        modalBackdropBlur: 5,
         primaryActionButtonBackground: '#2B51E8',
         primarySuccessButtonBackground: '#FFFFFF',
         disabledButtonBackground: '#BDC9F8',
@@ -144,11 +154,16 @@ export const defaultTheme: ThemeConfig = {
         socialLinkFontSize: '15px',
         socialLinkColor: '#FFFFFF',
         socialLinkButtonBackground: '#232946',
+        socialLinkHoverBackground: '#374151',
+        socialLinkHoverBorderColor: '#4B5563',
+        socialLinkHoverTextColor: '#FFFFFF',
         successMessageFontSize: '18px',
         successMessageColor: '#AAB8D1',
         successRedirectColor: '#6C8CFF',
         successRedirectHoverColor: '#AAB8D1',
         modalBackground: '#181A20',
+        modalBorderColor: '#181A20',
+        modalBackdropBlur: 5,
         primaryActionButtonBackground: '#6C8CFF',
         primarySuccessButtonBackground: '#232946',
         disabledButtonBackground: '#3A4668',

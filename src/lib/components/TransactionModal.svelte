@@ -125,11 +125,16 @@
     --social-link-font-size: {currentTheme.socialLinkFontSize};
     --social-link-color: {currentTheme.socialLinkColor};
     --social-link-button-background: {currentTheme.socialLinkButtonBackground};
+    --social-link-hover-background: {currentTheme.socialLinkHoverBackground};
+    --social-link-hover-border-color: {currentTheme.socialLinkHoverBorderColor};
+    --social-link-hover-text-color: {currentTheme.socialLinkHoverTextColor};
     --success-message-font-size: {currentTheme.successMessageFontSize};
     --success-message-color: {currentTheme.successMessageColor};
     --success-redirect-color: {currentTheme.successRedirectColor};
     --success-redirect-hover-color: {currentTheme.successRedirectHoverColor};
     --modal-background: {currentTheme.modalBackground};
+    --modal-border-color: {currentTheme.modalBorderColor};
+    --modal-backdrop-blur: {currentTheme.modalBackdropBlur || 5}px;
     --primary-action-button-background: {currentTheme.primaryActionButtonBackground};
     --primary-success-button-background: {currentTheme.primarySuccessButtonBackground};
     --disabled-button-background: {currentTheme.disabledButtonBackground};
@@ -279,6 +284,8 @@
   position: fixed;
   inset: 0;
   background: rgba(30, 41, 59, 0.18);
+  backdrop-filter: blur(var(--modal-backdrop-blur, 5px));
+  -webkit-backdrop-filter: blur(var(--modal-backdrop-blur, 5px));
   display: flex;
   align-items: center;
   justify-content: center;
@@ -291,6 +298,7 @@
   padding: 32px;
   border-radius: 16px;
   background: var(--modal-background, #FAFAFB);
+  border: 1px solid var(--modal-border-color, var(--modal-background, #FAFAFB));
   box-shadow: 0 8px 32px rgba(16, 30, 54, 0.12);
   position: relative;
   cursor: default;
@@ -498,8 +506,9 @@
 }
 
 .web3-tx-modal-social-button:hover {
-  background: #F8FAFC;
-  border-color: #CBD5E1;
+  background: var(--social-link-hover-background, #F8FAFC);
+  border-color: var(--social-link-hover-border-color, #CBD5E1);
+  color: var(--social-link-hover-text-color, inherit);
 }
 
 .web3-tx-modal-footer {

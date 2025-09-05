@@ -329,10 +329,33 @@ The **modal component** handles:
       
       // Layout
       card: '#F7F7FA',
-      modalBackground: 'rgba(62,124,255,0.3)',
+      modalBackground: '#FAFAFB',
+      modalBorderColor: '#FAFAFB',
+      modalBackdropBlur: 5,
       primaryActionButtonBackground: '#2B51E8',
       primarySuccessButtonBackground: '#FFFFFF',
-      disabledButtonBackground: '#BDC9F8'
+      disabledButtonBackground: '#BDC9F8',
+      
+      // Social Links
+      socialLinkFontSize: '15px',
+      socialLinkColor: '#000000',
+      socialLinkButtonBackground: '#FFFFFF',
+      socialLinkHoverBackground: '#F8FAFC',
+      socialLinkHoverBorderColor: '#CBD5E1',
+      socialLinkHoverTextColor: '#000000',
+      
+      // Success Messages
+      successMessageFontSize: '18px',
+      successMessageColor: '#555F81',
+      successRedirectColor: '#2e54e8',
+      successRedirectHoverColor: '#2e54e8',
+      
+      // Help Section
+      helpTextFontSize: '12px',
+      helpTextColor: '#555F81',
+      helpRedirectFontSize: '12px',
+      helpRedirectColor: '#555F81',
+      helpRedirectHoverColor: '#555F81'
     },
     dark: {
       // Dark theme overrides
@@ -340,6 +363,71 @@ The **modal component** handles:
       text: '#FFFFFF',
       background: '#1F2937',
       // ... other dark theme colors
+    }
+  }}
+/>
+```
+
+### Theme Examples
+
+#### Custom Brand Colors
+```svelte
+<TransactionModal
+  customTheme={{
+    light: {
+      primary: '#FF6B6B',
+      success: '#51CF66',
+      error: '#FF6B6B',
+      modalBackground: '#FFFFFF',
+      modalBorderColor: '#E9ECEF',
+      modalBackdropBlur: 10
+    }
+  }}
+/>
+```
+
+#### High Contrast Theme
+```svelte
+<TransactionModal
+  customTheme={{
+    light: {
+      text: '#000000',
+      background: '#FFFFFF',
+      border: '#000000',
+      modalBackground: '#FFFFFF',
+      modalBorderColor: '#000000',
+      modalBackdropBlur: 15
+    }
+  }}
+/>
+```
+
+#### Minimal Blur Theme
+```svelte
+<TransactionModal
+  customTheme={{
+    light: {
+      modalBackdropBlur: 2, // Very subtle blur
+      modalBorderColor: '#E5E7EB'
+    },
+    dark: {
+      modalBackdropBlur: 1, // Almost no blur
+      modalBorderColor: '#374151'
+    }
+  }}
+/>
+```
+
+#### Custom Social Links
+```svelte
+<TransactionModal
+  customTheme={{
+    light: {
+      socialLinkColor: '#1E40AF',
+      socialLinkButtonBackground: '#EFF6FF',
+      socialLinkHoverBackground: '#DBEAFE',
+      socialLinkHoverBorderColor: '#3B82F6',
+      socialLinkHoverTextColor: '#1E40AF'
     }
   }}
 />
@@ -385,6 +473,94 @@ The **modal component** handles:
 |-------|---------|-------------|
 | `close` | - | Dispatched when modal is closed |
 | `txExecute` | `{ transactionId: string }` | Dispatched when user clicks to execute a transaction |
+
+### Theme Properties
+
+#### Color Properties
+
+| Property | Type | Description | Default (Light) | Default (Dark) |
+|----------|------|-------------|-----------------|----------------|
+| `primary` | `string` | Primary brand color | `#4F7FFF` | `#4F7FFF` |
+| `success` | `string` | Success state color | `#10B981` | `#10B981` |
+| `error` | `string` | Error state color | `#DC2626` | `#DC2626` |
+| `text` | `string` | Primary text color | `#111827` | `#F9FAFB` |
+| `background` | `string` | Background color | `#FFFFFF` | `#1F2937` |
+| `border` | `string` | Border color | `#E5E7EB` | `#374151` |
+| `disabled` | `string` | Disabled state color | `#9CA3AF` | `#6B7280` |
+| `hover` | `string` | Hover state color | `#3B82F6` | `#3B82F6` |
+| `card` | `string` | Card background color | `#EEEFFA` | `#EEEFFA` |
+
+#### Button Colors
+
+| Property | Type | Description | Default (Light) | Default (Dark) |
+|----------|------|-------------|-----------------|----------------|
+| `buttonPrimary` | `string` | Primary button background | `#4F7FFF` | `#4F7FFF` |
+| `buttonPrimaryText` | `string` | Primary button text | `#FFFFFF` | `#FFFFFF` |
+| `buttonHover` | `string` | Button hover state | `#3B66E5` | `#3B66E5` |
+| `buttonDisabled` | `string` | Disabled button background | `rgba(79,127,255,0.1)` | `rgba(79,127,255,0.1)` |
+| `buttonDisabledText` | `string` | Disabled button text | `#FFFFFF` | `#FFFFFF` |
+| `buttonError` | `string` | Error button background | `#DC2626` | `#DC2626` |
+| `buttonErrorText` | `string` | Error button text | `#FFFFFF` | `#FFFFFF` |
+| `buttonSuccess` | `string` | Success button background | `#FFFFFF` | `#1F2937` |
+| `buttonSuccessText` | `string` | Success button text | `#64748B` | `#9CA3AF` |
+| `buttonProcessing` | `string` | Processing button background | `#4F7FFF` | `#4F7FFF` |
+| `buttonProcessingText` | `string` | Processing button text | `#FFFFFF` | `#FFFFFF` |
+
+#### Modal Properties
+
+| Property | Type | Description | Default (Light) | Default (Dark) |
+|----------|------|-------------|-----------------|----------------|
+| `modalBackground` | `string` | Modal background color | `#FAFAFB` | `#181A20` |
+| `modalBorderColor` | `string` | Modal border color | `#FAFAFB` | `#181A20` |
+| `modalBackdropBlur` | `number` | Background blur intensity (1-100) | `5` | `5` |
+| `primaryActionButtonBackground` | `string` | Primary action button background | `#2B51E8` | `#6C8CFF` |
+| `primarySuccessButtonBackground` | `string` | Success button background | `#FFFFFF` | `#232946` |
+| `disabledButtonBackground` | `string` | Disabled button background | `#BDC9F8` | `#3A4668` |
+
+#### Typography Properties
+
+| Property | Type | Description | Default (Light) | Default (Dark) |
+|----------|------|-------------|-----------------|----------------|
+| `fontFamily` | `string` | Font family | `inherit` | `inherit` |
+| `titleFontSize` | `string` | Title font size | `24px` | `24px` |
+| `titleColor` | `string` | Title text color | `#000000` | `#FFFFFF` |
+| `subtitleFontSize` | `string` | Subtitle font size | `18px` | `18px` |
+| `subtitleColor` | `string` | Subtitle text color | `#555F81` | `#AAB8D1` |
+| `metadataTitleFontSize` | `string` | Transaction title font size | `15px` | `15px` |
+| `metadataTitleColor` | `string` | Transaction title color | `#000000` | `#FFFFFF` |
+| `metadataButtonLabelFontSize` | `string` | Button label font size | `14px` | `14px` |
+| `metadataButtonLabelColor` | `string` | Button label color | `#FFFFFF` | `#FFFFFF` |
+| `metadataButtonLabelSuccessColor` | `string` | Success button label color | `#000000` | `#2B51E8` |
+
+#### Social Link Properties
+
+| Property | Type | Description | Default (Light) | Default (Dark) |
+|----------|------|-------------|-----------------|----------------|
+| `socialLinkFontSize` | `string` | Social link font size | `15px` | `15px` |
+| `socialLinkColor` | `string` | Social link text color | `#000000` | `#FFFFFF` |
+| `socialLinkButtonBackground` | `string` | Social link button background | `#FFFFFF` | `#232946` |
+| `socialLinkHoverBackground` | `string` | Social link hover background | `#F8FAFC` | `#374151` |
+| `socialLinkHoverBorderColor` | `string` | Social link hover border | `#CBD5E1` | `#4B5563` |
+| `socialLinkHoverTextColor` | `string` | Social link hover text | `#000000` | `#FFFFFF` |
+
+#### Success Message Properties
+
+| Property | Type | Description | Default (Light) | Default (Dark) |
+|----------|------|-------------|-----------------|----------------|
+| `successMessageFontSize` | `string` | Success message font size | `18px` | `18px` |
+| `successMessageColor` | `string` | Success message text color | `#555F81` | `#AAB8D1` |
+| `successRedirectColor` | `string` | Success redirect link color | `#2e54e8` | `#6C8CFF` |
+| `successRedirectHoverColor` | `string` | Success redirect hover color | `#2e54e8` | `#AAB8D1` |
+
+#### Help Section Properties
+
+| Property | Type | Description | Default (Light) | Default (Dark) |
+|----------|------|-------------|-----------------|----------------|
+| `helpTextFontSize` | `string` | Help text font size | `12px` | `12px` |
+| `helpTextColor` | `string` | Help text color | `#555F81` | `#AAB8D1` |
+| `helpRedirectFontSize` | `string` | Help redirect font size | `12px` | `12px` |
+| `helpRedirectColor` | `string` | Help redirect color | `#555F81` | `#AAB8D1` |
+| `helpRedirectHoverColor` | `string` | Help redirect hover color | `#555F81` | `#AAB8D1` |
 
 ### Types
 

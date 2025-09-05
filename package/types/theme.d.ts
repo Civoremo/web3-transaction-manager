@@ -17,6 +17,9 @@ export interface ThemeTypography {
     socialLinkFontSize?: string;
     socialLinkColor?: string;
     socialLinkButtonBackground?: string;
+    socialLinkHoverBackground?: string;
+    socialLinkHoverBorderColor?: string;
+    socialLinkHoverTextColor?: string;
     successMessageFontSize?: string;
     successMessageColor?: string;
     successRedirectColor?: string;
@@ -44,6 +47,8 @@ export interface ThemeColors {
     buttonProcessingText?: string;
     buttonHover?: string;
     modalBackground?: string;
+    modalBorderColor?: string;
+    modalBackdropBlur?: number;
     primaryActionButtonBackground?: string;
     primarySuccessButtonBackground?: string;
     disabledButtonBackground?: string;
