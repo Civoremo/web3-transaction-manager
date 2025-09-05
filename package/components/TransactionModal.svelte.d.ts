@@ -26,6 +26,7 @@ declare const __propDef: {
         showFinalSuccessScreen?: boolean;
         transactionStatuses: any;
         customTheme?: {};
+        successTitle?: string;
     };
     events: {
         click: MouseEvent;

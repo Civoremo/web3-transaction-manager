@@ -53,3 +53,22 @@ export interface ThemeConfig {
     dark: ThemeColors & ThemeTypography;
 }
 export declare const defaultTheme: ThemeConfig;
+export type TransactionType = 'approval' | 'contract' | 'fetch' | 'standard';
+export interface Transaction {
+    id: string;
+    type: TransactionType;
+    params: {
+        to?: string;
+        data?: string;
+        value?: string;
+        url?: string;
+        method?: string;
+        body?: any;
+        headers?: Record<string, string>;
+    };
+    metadata: {
+        title: string;
+        buttonLabel: string;
+        description?: string;
+    };
+}

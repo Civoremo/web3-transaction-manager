@@ -7,17 +7,29 @@ import type { ThemeConfig } from './theme';
  * - 'approval': Token approval transactions (e.g., approving USDC for a protocol)
  * - 'contract': Smart contract interaction transactions (e.g., calling contract functions)
  * - 'standard': Standard ETH transfers or simple transactions
+ * - 'fetch': HTTP requests to external APIs
+ * - 'signature': Message signing operations
  */
-export type TransactionType = 'approval' | 'contract' | 'standard';
+export type TransactionType = 'approval' | 'contract' | 'standard' | 'fetch' | 'signature';
 
 export type TransactionStatus = 'pending' | 'processing' | 'success' | 'failed' | 'cancelled';
 
 export interface TransactionParams {
-    to: string;
+    // Blockchain transaction parameters
+    to?: string;
     data?: string;
     value?: string;
     gasLimit?: string;
     gasPrice?: string;
+    // Fetch request parameters
+    url?: string;
+    method?: string;
+    body?: any;
+    headers?: Record<string, string>;
+    // Signature parameters
+    message?: string;
+    domain?: any;
+    signatureType?: 'personal' | 'typed';
 }
 
 export interface TransactionMetadata {
@@ -40,6 +52,11 @@ export interface TransactionState {
     error?: string;
     gasUsed?: BigNumberish;
     blockNumber?: number;
+    // Signature result fields
+    signature?: string;
+    signedMessage?: string;
+    // Fetch result fields
+    fetchResult?: any;
 }
 
 export interface TransactionManagerConfig {

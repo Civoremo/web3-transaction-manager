@@ -21,6 +21,7 @@ export let helpRedirectText = "Chat with someone";
 export let showFinalSuccessScreen = true;
 export let transactionStatuses;
 export let customTheme = {};
+export let successTitle = "Borrow";
 const dispatch = createEventDispatcher();
 $: allTransactionsSuccessful = transactions.length > 0 && transactions.every((tx) => $transactionStatuses[tx.id]?.status === "success");
 $: messageParts = successMessage.includes(redirectMessage) ? successMessage.split(redirectMessage) : ["", ""];
@@ -79,32 +80,32 @@ function handleTxExecute(transactionId) {
     --disabled-color: {currentTheme.disabled};
     --hover-color: {currentTheme.hover};
     --card-color: {currentTheme.card};
-    --font-family: {theme.fontFamily};
-    --title-font-size: {theme.titleFontSize};
-    --title-color: {theme.titleColor};
-    --subtitle-font-size: {theme.subtitleFontSize};
-    --subtitle-color: {theme.subtitleColor};
-    --metadata-title-font-size: {theme.metadataTitleFontSize};
-    --metadata-title-color: {theme.metadataTitleColor};
-    --metadata-button-label-font-size: {theme.metadataButtonLabelFontSize};
-    --metadata-button-label-color: {theme.metadataButtonLabelColor};
-    --metadata-button-label-success-color: {theme.metadataButtonLabelSuccessColor};
-    --help-text-font-size: {theme.helpTextFontSize};
-    --help-text-color: {theme.helpTextColor};
-    --help-redirect-font-size: {theme.helpRedirectFontSize};
-    --help-redirect-color: {theme.helpRedirectColor};
-    --help-redirect-hover-color: {theme.helpRedirectHoverColor};
-    --social-link-font-size: {theme.socialLinkFontSize};
-    --social-link-color: {theme.socialLinkColor};
-    --social-link-button-background: {theme.socialLinkButtonBackground};
-    --success-message-font-size: {theme.successMessageFontSize};
-    --success-message-color: {theme.successMessageColor};
-    --success-redirect-color: {theme.successRedirectColor};
-    --success-redirect-hover-color: {theme.successRedirectHoverColor};
-    --modal-background: {theme.modalBackground};
-    --primary-action-button-background: {theme.primaryActionButtonBackground};
-    --primary-success-button-background: {theme.primarySuccessButtonBackground};
-    --disabled-button-background: {theme.disabledButtonBackground};
+    --font-family: {currentTheme.fontFamily};
+    --title-font-size: {currentTheme.titleFontSize};
+    --title-color: {currentTheme.titleColor};
+    --subtitle-font-size: {currentTheme.subtitleFontSize};
+    --subtitle-color: {currentTheme.subtitleColor};
+    --metadata-title-font-size: {currentTheme.metadataTitleFontSize};
+    --metadata-title-color: {currentTheme.metadataTitleColor};
+    --metadata-button-label-font-size: {currentTheme.metadataButtonLabelFontSize};
+    --metadata-button-label-color: {currentTheme.metadataButtonLabelColor};
+    --metadata-button-label-success-color: {currentTheme.metadataButtonLabelSuccessColor};
+    --help-text-font-size: {currentTheme.helpTextFontSize};
+    --help-text-color: {currentTheme.helpTextColor};
+    --help-redirect-font-size: {currentTheme.helpRedirectFontSize};
+    --help-redirect-color: {currentTheme.helpRedirectColor};
+    --help-redirect-hover-color: {currentTheme.helpRedirectHoverColor};
+    --social-link-font-size: {currentTheme.socialLinkFontSize};
+    --social-link-color: {currentTheme.socialLinkColor};
+    --social-link-button-background: {currentTheme.socialLinkButtonBackground};
+    --success-message-font-size: {currentTheme.successMessageFontSize};
+    --success-message-color: {currentTheme.successMessageColor};
+    --success-redirect-color: {currentTheme.successRedirectColor};
+    --success-redirect-hover-color: {currentTheme.successRedirectHoverColor};
+    --modal-background: {currentTheme.modalBackground};
+    --primary-action-button-background: {currentTheme.primaryActionButtonBackground};
+    --primary-success-button-background: {currentTheme.primarySuccessButtonBackground};
+    --disabled-button-background: {currentTheme.disabledButtonBackground};
   "
 >
   {#if isOpen}
@@ -125,7 +126,7 @@ function handleTxExecute(transactionId) {
         <header class="web3-tx-modal-header">
           <div class="web3-tx-modal-title-section">
             {#if allTransactionsSuccessful}
-              <h2 id="modal-title">Borrow Successful!</h2>
+              <h2 id="modal-title">{successTitle} Successful!</h2>
             {:else}
               <h2 id="modal-title">{title}</h2>
             {/if}

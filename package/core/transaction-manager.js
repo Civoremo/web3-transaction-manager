@@ -20,6 +20,9 @@ export class TransactionManager {
             this.states.set(tx.id, { status: 'pending' });
         });
     }
+    setSigner(signer) {
+        this.web3Service.setSigner(signer);
+    }
     on(event, handler) {
         if (!this.eventHandlers.has(event)) {
             this.eventHandlers.set(event, []);
@@ -28,9 +31,6 @@ export class TransactionManager {
     }
     emit(event, data) {
         this.eventHandlers.get(event)?.forEach(handler => handler(data));
-    }
-    async connect() {
-        await this.web3Service.connect();
     }
     async start() {
         if (this.currentIndex >= 0) {
@@ -57,13 +57,18 @@ export class TransactionManager {
         try {
             this.emit('transactionStart', { transaction: tx });
             this.states.set(tx.id, { status: 'processing' });
-            // Estimate gas
-            const estimatedGas = await this.web3Service.estimateGas(tx);
-            tx.params.gasLimit = Math.ceil(Number(estimatedGas) * this.config.gasMultiplier).toString();
-            // Send transaction
-            const response = await this.web3Service.sendTransaction(tx);
-            // Wait for confirmation
-            const txState = await this.web3Service.waitForTransaction(response.hash, this.config.confirmations);
+            let txState;
+            // Handle different transaction types
+            switch (tx.type) {
+                case 'fetch':
+                    txState = await this.handleFetchTransaction(tx);
+                    break;
+                case 'signature':
+                    txState = await this.handleSignatureTransaction(tx);
+                    break;
+                default:
+                    txState = await this.handleBlockchainTransaction(tx);
+            }
             this.states.set(tx.id, txState);
             if (txState.status === 'success') {
                 this.emit('transactionSuccess', { transaction: tx, receipt: txState });
@@ -84,6 +89,59 @@ export class TransactionManager {
             this.states.set(tx.id, errorState);
             this.emit('transactionError', { transaction: tx, error: errorState.error });
         }
+    }
+    async handleFetchTransaction(tx) {
+        try {
+            const fetchResult = await this.web3Service.executeFetchRequest(tx);
+            return {
+                status: 'success',
+                fetchResult
+            };
+        }
+        catch (error) {
+            return {
+                status: 'failed',
+                error: error instanceof Error ? error.message : 'Fetch failed'
+            };
+        }
+    }
+    async handleSignatureTransaction(tx) {
+        try {
+            const { message, domain, signatureType = 'personal' } = tx.params;
+            if (!message) {
+                throw new Error('No message provided for signature');
+            }
+            let signature;
+            if (signatureType === 'typed' && domain) {
+                // EIP-712 typed signature
+                const typedMessage = message;
+                signature = await this.web3Service.signTypedData(domain, typedMessage.types, typedMessage.value);
+            }
+            else {
+                // Personal signature
+                signature = await this.web3Service.signMessage(message);
+            }
+            return {
+                status: 'success',
+                signature,
+                signedMessage: message
+            };
+        }
+        catch (error) {
+            return {
+                status: 'failed',
+                error: error instanceof Error ? error.message : 'Signature failed'
+            };
+        }
+    }
+    async handleBlockchainTransaction(tx) {
+        // Estimate gas
+        const estimatedGas = await this.web3Service.estimateGas(tx);
+        tx.params.gasLimit = Math.ceil(Number(estimatedGas) * this.config.gasMultiplier).toString();
+        // Send transaction
+        const response = await this.web3Service.sendTransaction(tx);
+        // Wait for confirmation
+        return await this.web3Service.waitForTransaction(response.hash, this.config.confirmations);
     }
     getState(txId) {
         return this.states.get(txId);

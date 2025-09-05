@@ -1,11 +1,12 @@
 import type { Transaction, TransactionEvent, TransactionManagerConfig, TransactionState } from '../types';
 import { Web3Service } from './web3-service';
+import type { Signer } from 'ethers';
 
 export class TransactionManager {
     private transactions: Transaction[] = [];
     private states: Map<string, TransactionState> = new Map();
     private currentIndex = -1;
-    private eventHandlers: Map<TransactionEvent, Function[]> = new Map();
+    private eventHandlers: Map<TransactionEvent, ((data?: unknown) => void)[]> = new Map();
     private web3Service: Web3Service;
     private config: Required<TransactionManagerConfig>;
 
@@ -28,19 +29,19 @@ export class TransactionManager {
         });
     }
 
-    on(event: TransactionEvent, handler: Function): void {
+    setSigner(signer: Signer): void {
+        this.web3Service.setSigner(signer);
+    }
+
+    on(event: TransactionEvent, handler: (data?: unknown) => void): void {
         if (!this.eventHandlers.has(event)) {
             this.eventHandlers.set(event, []);
         }
         this.eventHandlers.get(event)?.push(handler);
     }
 
-    private emit(event: TransactionEvent, data?: any): void {
+    private emit(event: TransactionEvent, data?: unknown): void {
         this.eventHandlers.get(event)?.forEach(handler => handler(data));
-    }
-
-    async connect(): Promise<void> {
-        await this.web3Service.connect();
     }
 
     async start(): Promise<void> {
@@ -74,18 +75,19 @@ export class TransactionManager {
             this.emit('transactionStart', { transaction: tx });
             this.states.set(tx.id, { status: 'processing' });
 
-            // Estimate gas
-            const estimatedGas = await this.web3Service.estimateGas(tx);
-            tx.params.gasLimit = Math.ceil(Number(estimatedGas) * this.config.gasMultiplier).toString();
+            let txState: TransactionState;
 
-            // Send transaction
-            const response = await this.web3Service.sendTransaction(tx);
-            
-            // Wait for confirmation
-            const txState = await this.web3Service.waitForTransaction(
-                response.hash,
-                this.config.confirmations
-            );
+            // Handle different transaction types
+            switch (tx.type) {
+                case 'fetch':
+                    txState = await this.handleFetchTransaction(tx);
+                    break;
+                case 'signature':
+                    txState = await this.handleSignatureTransaction(tx);
+                    break;
+                default:
+                    txState = await this.handleBlockchainTransaction(tx);
+            }
 
             this.states.set(tx.id, txState);
 
@@ -106,6 +108,69 @@ export class TransactionManager {
             this.states.set(tx.id, errorState);
             this.emit('transactionError', { transaction: tx, error: errorState.error });
         }
+    }
+
+    private async handleFetchTransaction(tx: Transaction): Promise<TransactionState> {
+        try {
+            const fetchResult = await this.web3Service.executeFetchRequest(tx);
+            
+            return {
+                status: 'success',
+                fetchResult
+            } as TransactionState;
+        } catch (error) {
+            return {
+                status: 'failed',
+                error: error instanceof Error ? error.message : 'Fetch failed'
+            } as TransactionState;
+        }
+    }
+
+    private async handleSignatureTransaction(tx: Transaction): Promise<TransactionState> {
+        try {
+            const { message, domain, signatureType = 'personal' } = tx.params;
+            
+            if (!message) {
+                throw new Error('No message provided for signature');
+            }
+
+            let signature: string;
+            
+            if (signatureType === 'typed' && domain) {
+                // EIP-712 typed signature
+                const typedMessage = message as unknown as { types: any; value: any };
+                signature = await this.web3Service.signTypedData(domain, typedMessage.types, typedMessage.value);
+            } else {
+                // Personal signature
+                signature = await this.web3Service.signMessage(message as string);
+            }
+
+            return {
+                status: 'success',
+                signature,
+                signedMessage: message
+            } as TransactionState;
+        } catch (error) {
+            return {
+                status: 'failed',
+                error: error instanceof Error ? error.message : 'Signature failed'
+            } as TransactionState;
+        }
+    }
+
+    private async handleBlockchainTransaction(tx: Transaction): Promise<TransactionState> {
+        // Estimate gas
+        const estimatedGas = await this.web3Service.estimateGas(tx);
+        tx.params.gasLimit = Math.ceil(Number(estimatedGas) * this.config.gasMultiplier).toString();
+
+        // Send transaction
+        const response = await this.web3Service.sendTransaction(tx);
+        
+        // Wait for confirmation
+        return await this.web3Service.waitForTransaction(
+            response.hash,
+            this.config.confirmations
+        );
     }
 
     getState(txId: string): TransactionState | undefined {
